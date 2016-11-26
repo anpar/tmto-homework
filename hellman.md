@@ -1,0 +1,49 @@
+# Le compromis temps-mémoire de Hellman
+En 1980, Martin E. Hellman propose un compromis temps-mémoire dans un article intitulé [A cryptanalytic Time-Memory Trade-Off]
+(http://www.cs.miami.edu/home/burt/learning/Csc609.102/doc/36.pdf). Cette section explique le principe de fonctionnement
+de ce TMTO.
+
+Dans son article, Martin E. Hellman propose un TMTO dans le même contexte que celui de l'introduction. Le but est donc
+de retrouver la clé *k* utilisée par Alice et Bob pour communiquer secrètement. Pour ce faire, on procède à nouveau à une
+attaque à texte clair choisi. Cette section décrit le TMTO de Martin E. Hellman dans 2 situations différentes 
+- Dans un monde parfait où tout se passe le plus idéalement possible ;
+- Dans un cas réel, avec l'algorithme DES (Data Encryption Standard).
+
+Cette section est largement inspirée de l'article original de Martin E. Hellman et de
+[cet excellent article](http://www.cs.sjsu.edu/faculty/stamp/RUA/TMTO.pdf) d'introduction au TMTO.
+
+## Dans un monde parfait...
+Imaginons dans un premier temps un algorithme de chiffrement par bloc opérant sur des blocs de 64 bits (en entré et en sortie)
+avec une clé de 64 bits également. L'espace des messages chiffrés *C* et l'espace des clés *K* sont donc identiques et c'est
+justement cela qu'exploite Hellman pour construire son TMTO. Comme *C* et *K* sont identiques, le chiffrement d'un message
+choisi *p* par une clé *k*, *c = Enc(k,m)*, peut lui même être considéré comme une clé. L'idée d'Hellman est donc de construire
+des chaînes de chiffrement du message choisi *m* en utilisant en guise de clé le chiffrement précédent. Plus formellement, on
+part d'un point de départ *SP* (pour starting point) choisi (aléatoirement ou non) dans l'espace des clés :
+*SP = K<sub>0</sub>*. Ensuite, on calcule successivement *K<sub>i</sub> = Enc(K<sub>i-1</sub>, p)* pour *i* allant de 1 à
+*t-1*. On note *EP* (pour end point) *K<sub>i-1</sub> = Enc(K<sub>i-2</sub>, p)*. La chaîne ainsi calculée est de longueur
+*t*. On répète ensuite ce processus *m* fois de manière à obtenir *m* chaînes de longueur *t*.
+
+En faisant l'hypothèse qu'aucune de ces chaines ne fusionne ou ne se croise (ce qui est impossible en pratique),
+on peut de cette manière couvrir entièrement l'espace des clés *K* si, par exemple, *m = t = 2<sup>32</sup>*. Stocker
+intégralement ces *m* chaînes de longueur *t* en mémoire n'aurait pas de sens, car on se ramène au cas présenté dans
+l'introduction. Une façon plus intelligente de procéder est de stocker uniquement les paires
+*(SP<sub>i</sub>,EP<sub>i</sub>)*,
+qui caractérisent chaque chaîne. Da la sorte, on utilise que *2m = 2<sup>33</sup>* mots de 64 bits en mémoire. Cela
+correspond à un peu de moins de 69 gigaoctets et est donc tout à fait raisonnable. A titre de comparaison, l'approche basée
+sur une lookup table présentée dans l'introduction demanderait pas loin de 150 exaoctets.
+
+Comment fait-on ensuite pour retrouver la clé secrète *k* qu'utilisent Alice et Bob? Nous sommes ici dans le cadre d'une
+attaque à texte clair choisi, ce qui signifie que l'on connait *c* et *p* tel que *c = Enc(k,p)*. Comme l'espace des
+clés est entièrement couvert par des chaînes distinctes en tout point, on a la garantie que *c = k<sub>0</sub>* se trouve
+sur une seule de ces chaînes. Autrement dit, on sait que *c = k<sub>0</sub>* est le résultat du chiffrement de *p* par la clé
+*k'* se trouvant avant *k<sub>0</sub>* dans la chaîne (*k' = k* est donc la clé inconnue que l'on recherche). Il ne reste
+donc plus qu'à identifier la chaîne sur laquelle se trouve *k<sub>0</sub>*. On démarre donc de *c = k<sub>0</sub>* et on
+reconstruit la chaîne étape par étape : *k<sub>i</sub> = Enc(k<sub>i</sub>, p)*. A chaque étape, on vérifie si
+*k<sub>i</sub>* ne correspond pas à un des *EP<sub>j</sub>* stockés en mémoire. Après au plus *t-1* itérations (c'est
+à dire après avoir parcouru entièrement la chaîne), on aura forcément trouver un *i* et un *j* tels que *k<sub>i</sub>
+= EP<sub>j</sub>*. Autrement dit, après au plus *t* itérations, on a identifié la chaîne sur laquelle se trouve *c =
+k<sub>0</sub>*. On re-démarre ensuite de *SP<sub>j</sub>* et on re-construit la chaîne depuis le début jusqu'à ce qu'on
+arrive à un certain *k<sub>l</sub> = k<sub>0</sub>*. Comme *k<sub>l</sub> = k<sub>0</sub> = c = Enc(k<sub>l-1</sub>, p)*,
+*k<sub>l-1</sub>* correspond à la clé inconnue *k* que l'on recherche! A nouveau, cet étape requiert au plus *t*
+itérations. En moyenne, chacune de ces opérations requiert *t/2* opérations pour un total de *t = 2<sup>32</sup>*
+opérations: on est donc bien loin des 2<sup>64</sup> opérations de la recherche exhaustive proposée dans l'introduction.
