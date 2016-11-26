@@ -1,5 +1,6 @@
 # Introduction
-Dans cette section, on introduit la notion de compromis temps-mémoire de manière intuitive, via des exemples. Les sections
+Dans cette section, on introduit la notion de compromis temps-mémoire (ou time-memory trade-off, TMTO en anglais)
+de manière intuitive, via des exemples. Les sections
 suivantes s'intéresseront quant à elle à la description du fonctionnement d'algorithmes classiques permettant de mettre
 en oeuvre un compromis temps-mémoire.
 
@@ -40,3 +41,6 @@ signifie que *N*, le nombre total de clés, vaut 2^128 = 3.4e38. Aucun ordinateu
 très longtemps encore) n'est capable de faire un recherche exhaustive sur un espace d'une telle taille, et encore moins
 de stocker une table contenant 2^128 lignes en mémoire... C'est là qu'intervient le compromis temps-mémoire qui, comme son
 nom l'indique, vise à trouver un juste milieu entre temps d'exécution et mémoire utilisée.
+
+D'autres exemples de TMTO (pas seulement dans le domaine de la cryptanalyse) sont présentés dans [cet article]
+(http://www.cs.sjsu.edu/faculty/stamp/RUA/TMTO.pdf).
