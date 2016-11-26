@@ -89,8 +89,8 @@ Cette section est largement inspirée de l'article original de Martin E. Hellman
 <p>Imaginons dans un premier temps un algorithme de chiffrement par bloc opérant sur des blocs de 64 bits (en entré et en sortie)
 avec une clé de 64 bits également. L'espace des messages chiffrés $C$ et l'espace des clés $K$ sont donc identiques et c'est
 justement cela qu'exploite Hellman pour construire son TMTO. Comme $C$ et $K$ sont identiques, le chiffrement d'un message
-choisi $p$ par une clé $k$, $c = Enc(k,m)$, peut lui même être considéré comme une clé. L'idée d'Hellman est donc de construire
-des chaînes de chiffrement du message choisi $m$ en utilisant en guise de clé le chiffrement précédent. Plus formellement, on
+choisi $p$ par une clé $k$, $c = Enc(k,p)$, peut lui même être considéré comme une clé. L'idée d'Hellman est donc de construire
+des chaînes de chiffrement du message choisi $p$ en utilisant en guise de clé le chiffrement précédent. Plus formellement, on
 part d'un point de départ $SP$ (pour starting point) choisi (aléatoirement ou non) dans l'espace des clés :
 $SP = k_0$. Ensuite, on calcule successivement $k_i = Enc(k_{i-1}, p)$ pour $i$ allant de 1 à
 $t-1$. On note $EP$ (pour end point) $k_{t-1} = Enc(k_{t-2}, p)$. La chaîne ainsi calculée est de longueur
@@ -119,6 +119,13 @@ arrive à un certain $k_l = k_0$. Comme $k_l = k_0 = c = Enc(k_{l-1}, p)$,
 $k_{l-1}$ correspond à la clé inconnue $k$ que l'on recherche! A nouveau, cet étape requiert au plus $t$
 itérations. En moyenne, ces deux étapes requiert $t/2$ opérations pour un total de $t = 2^{32}$
 opérations: on est donc bien loin des $2^{64}$ opérations de la recherche exhaustive proposée dans l'introduction.</p>
+
+<p>A nouveau, il est important de comprendre que l'étape de pré-calcul reste extrêmement coûteuse
+puisqu'on a quand même besoin de $2^{64}$ opérations pour constituer toutes les chaînes. L'idée du TMTO est
+d'amortir ce coût de départ sur le long terme (c'est à dire après un grand nombre d'attaques effectuées). Si
+le but est d'attaquer une seule fois seulement, une recherche exhaustive est une meilleure approche. Le coût de pré-calcul
+peut être réduit si on décide de ne pas couvrir intégralement l'espace des clés avec des chaînes. Dans
+ce cas, l'algorithme de récupération de clé expliqué précédemment ne fonctionnera pas toujours. </p>
 
 		     </div>
                 </div>
