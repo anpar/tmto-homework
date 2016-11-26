@@ -28,7 +28,7 @@ les résultats dans une énorme table indexée par *c* et dont chaque ligne cont
 ensuite de la même façon que précedemment. Eve, d'une manière ou d'une autre, parvient à obtenir le chiffrement de *m'* :
 *c' = Enc(k, m')*. Tout ce qu'il lui reste à faire ensuite est d'aller chercher dans la table qu'elle a stockée en mémoire
 la clé *k* correspondant au chiffrement *c'* de *m'*. Cette approche diffère de la précédente en deux points. Premièrement,
-l'attaque nécessite une étape de **pré-calcul** qui nécessite à nouveau, dans le cas d'une clé contenant
+l'attaque nécessite une étape de **pré-calcul** qui nécessite à nouveau
 *N* étapes. En plus de cela, cette approche nécessite une mémoire assez grande pour stocker entièrement la table
 de correspondante entre chiffrés et clés. Jusqu'ici, on serait tenter de dire que cette approche n'a aucun intèrêt puisqu'en
 plus d'utiliser *N* étapes comme l'approche précédente, il nous faut une mémoire permettant de stocker une table de *N*
