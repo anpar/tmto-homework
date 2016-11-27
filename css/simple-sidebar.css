@@ -8,6 +8,10 @@
     overflow-x: hidden;
  }
 
+figure figcaption {
+	text-align: center;
+}
+
 /* Toggle Styles */
 
 #wrapper {

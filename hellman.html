@@ -84,10 +84,12 @@ attaque à texte clair choisi. Cette section décrit le TMTO de Martin E. Hellma
 
 Cette section est largement inspirée de l'article original de Martin E. Hellman et de
 <a href="http://www.cs.sjsu.edu/faculty/stamp/RUA/TMTO.pdf">cet excellent article</a> d'introduction au TMTO.
+Les images utilisées pour illustrer nos proposes proviennent quant à elle de
+<a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">ce cours</a>.
 
 <h2>Dans un monde parfait...</h2>
 <p>Imaginons dans un premier temps un algorithme de chiffrement par bloc opérant sur des blocs de 64 bits (en entré et en sortie)
-avec une clé de 64 bits également. L'espace des messages chiffrés $C$ et l'espace des clés $K$ sont donc identiques et c'est
+avec une clé de longueur $|k| = 64$ bits également. L'espace des messages chiffrés $C$ et l'espace des clés $K$ sont donc identiques et c'est
 justement cela qu'exploite Hellman pour construire son TMTO. Comme $C$ et $K$ sont identiques, le chiffrement d'un message
 choisi $p$ par une clé $k$, $c = Enc(k,p)$, peut lui même être considéré comme une clé. L'idée d'Hellman est donc de construire
 des chaînes de chiffrement du message choisi $p$ en utilisant en guise de clé le chiffrement précédent. Plus formellement, on
@@ -125,9 +127,73 @@ puisqu'on a quand même besoin de $2^{64}$ opérations pour constituer toutes le
 d'amortir ce coût de départ sur le long terme (c'est à dire après un grand nombre d'attaques effectuées). Si
 le but est d'attaquer une seule fois seulement, une recherche exhaustive est une meilleure approche. Le coût de pré-calcul
 peut être réduit si on décide de ne pas couvrir intégralement l'espace des clés avec des chaînes. Dans
-ce cas, l'algorithme de récupération de clé expliqué précédemment ne fonctionnera pas toujours. </p>
+ce cas, l'algorithme de récupération de clé expliqué précédemment ne fonctionnera pas toujours. Il aura une
+probabilité de succès $P(S) = \frac{mt}{2^n}$ (toujours dans l'hypothèse ou les chaînes ne fusionnent
+pas et ne se croisant pas). </p>
 
-		     </div>
+<p>En résumé, dans un monde parfait, les chaînes de chiffrement du message choisi $p$ peuvent couvrir tout
+l'espace des clés en utilisant $m=2^{n/2}$ chaînes de longueurs $t=2^{n/2}$. En terme d'espace en mémoire,
+cela donne $2m = 2^{n/2+1}$ mots de 64 bits (pour notre exemple) à stocker. En terme de nombre d'opérations,
+cela donne en moyenne $\frac{t}{2}=2^{31}$ opérations. La probabilité de succès de l'algorithme est de 1.</p>
+
+<p>La figure ci-dessous résume assez bien la situation idéale décrite dans cette section</p>. 
+
+<figure class="figure center-block">
+ 	<img src="img/hellman-perfect-world.png" class="figure-img img-fluid rounded center-block" alt="">
+  	<figcaption class="figure-caption center-block">Dans un monde parfait, les chaînes ne fusionnent pas
+	et ne se croisent jamais.</figcaption>
+</figure>
+
+<h2>Dans le monde réel</h2>
+Malheureusement, le monde réel est loin d'être parfait. En pratique, les chaînes de chiffrement peuvent
+fusionner et faire des cycles, comme illustré sur la figure ci-dessous.
+
+<figure class="figure center-block">
+  <img src="img/hellman-real-world.png" class="figure-img img-fluid rounded center-block" alt="">
+  <figcaption class="figure-caption center-block">Dans le monde réel, les choses ne se passent si bien...</figcaption>
+</figure>
+
+<p>Mais qu'est-ce que cela implique exactement? Premièrement, cela implique que même avec $t=m=2^{n/2}$, on ne
+couvrira plus tout l'espace des clés puisque certaines chaînes fusionnent (autrement dit, certaines clés
+se trouvent sur deux chaînes en même temps, au détriment d'autres clés qui ne se trouvent sur aucune chaîne).
+L'algorithme n'aura donc plus une probabilité de succès égale à 1 : $P(S) < 1$. De manière plus générale
+$$ P(s) < \frac{mt}{2^n}.$$
+</p>
+
+<p>Deuxièmement, une <i>false alarm</i> (ou fausse alerte) peut se produire. Dans le monde parfait décrit
+précédemment, chaque point de la chaîne ne possédait qu'une seule pré-image. Autrement dit, pour chaque
+clé $k_i$, il n'existait qu'une seule clé *k_{i-1}* tel que $k_i  = Enc(k_{i-1}, p)$. Mais on sait qu'en
+pratique les chaînes peuvent fusionner. Autrement dit, cette clé $k_i$ qui se trouve sur une certaine chaîne $A$
+peut se trouver dans une autre chaîne $B$ à la position $j$, et donc on peut trouver $k_{j-1} \neq k_{i-1}$
+dans cette autre chaîne telle que $k_j = k_i = Enc(k_{j-1}, p)$. Selon l'endroit ou ces deux chaînes
+fusionnent, $EP_A$ ou $EP_B$ sera rencontré en premier.</p>
+
+<p>Pour réduire les fusions entre chaînes, une solution simple est changer un peu la façon de les calculer.
+Jusqu'ici, une chaîne se construisait de la façon suivante
+$$k_i = Enc(k_{i-1},p)$$
+avec $k_0 = SP$. Une autre façon de faire est d'utiliser une fonction $F$ qui permette les bits de son
+argument
+$$k_i = F(Enc(k_{i-1},p)).$$  
+En utilisant une fonction $F$ différente pour chaque chaîne, il est garantit que celle-ci ne fusionneront
+plus (elles peuvent encore cependant rentrer en collision).</p>
+
+<p>Dans le monde idéal que nous avons considérer jusqu'ici, nous avons aussi supposé que la taille de la
+clé était identique à la taille du message chiffré de telle sorte que l'espace des clés soit identique
+à l'espace des messages chiffrés. C'est d'ailleurs sur cela que se base tout ce que nous avons fait jusqu'ici.
+En pratique, cette hyptothèse n'est pas toujours vérifiée. Par exemple, l'algorithme de chiffrement par bloc DES
+(pour Data Encryption Standard) opère sur des blocs de 64 bits mais utilise des clés de 56 bits. Pour se
+ramener au cas précédent, il faut utiliser ce que l'on appelle une fonction de réduction, notée $R$ dans ce qui
+suit. Dans le cas de DES, $R$ est donc une simple fonction qui prend 64 bits en entrée et retourne 56 bits.
+Les chaînes se calculent de la façon suivante
+$$k_i = R(Enc(k_{i-1},p)).$$
+Pour augmenter la probability de succès, on peut calculer plusieurs tables contenant les paires $(SP_i, EP_i)$
+obtenues avec des fonctions de réduction différentes. On obtient alors une probabilité de succès approximativement
+donnée par
+$$P(S) \approx 1 - e^{-\frac{mrt}{|k|}}$$
+où $r$ est le nombre de tables utilisées (c'est à dire le nombre de fonctions de réductions utilisées).
+</p>
+
+		     		</div>
                 </div>
             </div>
         </div>
