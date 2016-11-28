@@ -72,9 +72,8 @@
                     <div class="col-lg-12">
 
 <h1>Introduction</h1>
-<p>Dans cette section, on introduit la notion de compromis temps-mémoire (ou time-memory trade-off, TMTO en anglais)
-de manière intuitive, via un exemple d'application en cryptanalyse. Les sections
-suivantes s'intéresseront quant à elle à la description du fonctionnement d'algorithmes classiques permettant de mettre
+<p>Dans cette section, on introduit la notion de compromis temps-mémoire (ou time-memory trade-off, TMTO en anglais).
+Les sections suivantes s'intéresseront quant à elle à la description du fonctionnement d'algorithmes classiques permettant de mettre
 en oeuvre un compromis temps-mémoire.</p>
 
 <h2>Objectif d'un compromis temps-mémoire</h2>
@@ -86,11 +85,11 @@ $x\in A$ tel que $y = h(x)$.</p>
 <p>On peut identifier deux techniques très simples pour résoudre ce problème:
 <ol>
     <li>Pour chaque $x'\in A$, on calcule $y'=h(x')$ et on retourne $x = x'$ ssi $y' = y$. Cette technique nécessite
-    $N$ calculs de $h$ dans le pire cas ($N/2$ en moyenne).</li>
+    $|A| = N$ calculs de $h$ dans le pire cas ($N/2$ en moyenne).</li>
     <li>Pour chaque $x'\in A$, on calcule $y'=h(x')$, on stocke ensuite une table contenant les correspondances
         $(x', y')$. On trie cette table sur les valeurs de $y'$. On cherche ensuite $y$ dans la table, et on trouve
         immédiatement le $x$ qui correspond. Cette technique nécessite de calculer $N$ valeurs de $h$ et de stocker en
-        mémoire $N$ paires $(x', h(x')$, puis de faire une recherche dans la mémoire.</li>
+        mémoire $N$ paires $(x', h(x'))$, puis de faire une recherche dans la mémoire.</li>
 </ol>
 </p>
 
@@ -98,7 +97,7 @@ $x\in A$ tel que $y = h(x)$.</p>
 on teste toutes les entrées possibles de la fonction $h$. La différence entre les deux techniques est plus évidente
 lorsque l'on se place dans une situation où on veut mener plusieurs attaques contre une même fonction. Avec la première
 technique, trouver les inverses de $n$ valeurs de $B$ demande $n$ fois le travail requis pour trouver l'inverse d'une
-valeur. Avec la deuxième technique, par contre, trouver $n$ inverses demande à peine plus de travail de que trouver un
+valeur. Avec la deuxième technique, par contre, trouver $n$ inverses demande à peine plus de travail que de trouver un
 seul inverse: faire une recherche dans la table est très rapide (cela ne nécessite pas
 de calculer des valeurs de la fonction $h$ (souvent coûteux), et on peut utiliser une recherche dichotomique ou une table
 de hachage). L'essentiel du travail vient du précalcul de la table.</p>
@@ -108,11 +107,11 @@ rapidemement l'inverse d'une valeur, mais que la fonction $h$ est connue longtem
 On calcule alors à l'avance toute la table, et on est ensuite capable d'inverser très rapidement n'importe quelle valeur.</p>
 
 <p>La deuxième méthode est donc nettement supérieure à la première dans ces situations. Elle a cependant un gros inconvénient:
-il faut stocker toute la table, qui contient $N = |A|$ lignes. Or on s'intéresse à des problèmes où $N$ est grand (par exemple
-$N = 2^{56}$ pour DES (Data Encryption Standard), voir ci-dessous). Il est donc souvent impossible de stocker toute la table. La première méthode, quand
-à elle, ne nécessite aucune mémoire.</p>
+il faut stocker toute la table, qui contient $N$ lignes. Or on s'intéresse à des problèmes où $N$ est grand (par exemple
+$N = 2^{56}$ pour DES (Data Encryption Standard), voir ci-dessous). Il est donc souvent impossible de stocker toute la table.
+La première méthode, quand à elle, ne nécessite aucune mémoire.</p>
 
-<p>Un compromis temps-mémoire est donc une technique qui garde les propriété intéressantes de la deuxième méthode
+<p>Un compromis temps-mémoire est donc une technique qui garde les propriétés intéressantes de la deuxième méthode
 (on peut calculer à faible coût des inverses en utilisant une table précalculée), tout en gardant une utilisation
 de mémoire raisonnable, de sorte que la méthode soit utilisable sur de vraies machines. Le compromis se situe
 entre la mémoire et le temps nécessaire à chaque attaque: on utilise moins de mémoire, mais pour chaque attaque, il faudra faire
@@ -147,8 +146,8 @@ en comptant seulement le nombre de calculs de $h$ pour $T$ et $P$.</p>
 Pour ce faire, on suppose que Alice et Bob ont déjà eu l'occasion de s'échanger une clé secrète $k$ leur permettant de
 communiquer de façon sécurisée en utilisant leur algorithme de chiffrement favori. Nous allons ici jouer le rôle du méchant,
 Eve, dont le but est de pouvoir, d'une manière ou d'une autre, décrypter les messages que s'envoient Bob et Alice. Eve ne
-peut cependant observer que des messages chiffrés $c = Enc(k,m)$ où $Enc$ représente l'algorithme de chiffrement préféré
-d'Alice et Bob. Le seul moyen de déchiffrer un tel message est de connaître la clé secrète $k$, $m = Dec(k,c)$ où $Dec$
+peut cependant observer que des messages chiffrés $c = Enc(k,m)$ où $Enc$ représente l'algorithme de chiffrement utilisé.
+Le seul moyen de déchiffrer un tel message est de connaître la clé secrète $k$, $m = Dec(k,c)$ où $Dec$
 représente l'algorithme de déchiffrement.</p>
 
 <p>En utilisant les notations définies ci-dessus, $A$ est l'ensemble des clés possibles, $B$ l'ensemble des messages en clair
