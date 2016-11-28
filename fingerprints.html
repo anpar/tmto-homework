@@ -79,9 +79,11 @@
 
 <h1>Fingerprints</h1>
 
-<p>Les fingerprints ("empreinte digitales") sont la réunion de deux techniques différentes: les checkpoints
-et la troncation du point de terminaison; la technique des fingerprints optimise conjointement les paramètres
-de ces deux méthodes pour maximiser l'efficacité du TMTO. Nous allons analyser ici ces deux méthodes séparément.</p>
+<p>Les fingerprints ("empreinte digitales") sont une technique qui modifie le contenu de la table stockée;
+il s'agit d'une méthode qui généralise (et donc contient) deux autres techniques:
+les checkpoint et la troncation du point de terminaison; en quelque sorte, la technique des fingerprints
+optimise conjointement les paramètres de ces deux méthodes pour maximiser l'efficacité du TMTO.
+Nous allons commencer par expliquer ces deux méthodes séparément.</p>
 
 <p>Ces techniques sont applicables à différent types de tables, mais elles seront discutées ici dans le cadre des
 rainbow tables.</p>
@@ -130,9 +132,12 @@ plusieurs entrées dans la table).</p>
 
 <h2>Principe des fingerprints</h2>
 
-<p>On observe qu'il n'y a pas une très grande différence entre une terminaison tronquée et un checkpoint. En effet,
-on peut imaginer prendre un checkpoint avec beaucoup de bits à la fin de la chaine, ce qui correspond à un terminaison
-tronquée. On peut alors simplifier l'analyse en utilisant uniquement des checkpoints.</p>
+<p>Les deux techniques ci-dessous on en commun de modifier la valeur qui est stockée pour chaque ligne de la table:
+d'une part on stocke des bits qui viennent d'autres colonnes que la dernière, et d'autre part on ne stocke pas
+l'entiereté de la dernière colonne. En combinant ces deux méthodes, on se retrouve avec une méthode où un décide
+de stocker un certain nombre de bits par colonne. On a alors un ensemble de bits qui sont caractéristiques pour chaque
+ligne, qu'on appelle fingerprint. Dans la suite, on va appeler checkpoints les bits stocké pour chaque colonne
+(y compris la dernière).</p>
 
 <p>On peut alors exprimer la valeur moyenne de $T$ (en nombre d'évaluations de $h$) en fonction de $(\sigma_i)_{1\le i\le t}$,
 le nombre de bits de checkpoint dans la colonne $i$. On peut alors appliquer un algorithme d'optimisation pour minimiser
