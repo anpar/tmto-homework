@@ -172,7 +172,8 @@ devient un travail considérable, pour un gain assez faible pour le travail en-l
 <p>TODO: détailler le travail pour une taille de table donnée, voir annexe A du doc précédent.</p>
 
 <p>Dans le cas d'une table parfaite (pas de fusions et $m = m_{max}$), la probabilité de succès est
-$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t,$$ comme expliqué à la section précédente.</p>
+$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t \approx 1 - e^{-t\frac{m_{max}{N},$$ comme expliqué à la section précédente. En se basant sur
+l'approximation de $m_{max}$, on trouve $$P_{table} \approx 1 - e^{-2} \approx 86\%.$$</p>
 
 		     		</div>
                 </div>
