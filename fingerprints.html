@@ -111,7 +111,16 @@ la position des checkpoints.</p>
 par exemple que l'ajout de checkpoint en augmentant la mémoire de $0.89\%$ permet de diminuer le temps de calcul
 en ligne de $10.99\%$ dans le cas d'une attaque contre DES.</p>
 
-<p>TODO: ajouter figures de ref3, fig1 et fig2</p>
+<figure class="figure center-block">
+    <img src="img/checkpoints.png" width="60%" class="figure-img img-fluid rounded center-block" alt="">
+    <figcaption class="figure-caption center-block">
+        A gauche: checkpoint avant la fusion. La fausse alarme est détectée avec une probabilité 1/2
+        (si le checkpoint fait un bit). A droite: checkpoint après la fusion. La fausse alarme n'est pas
+        détectée.
+        Figure tirée de <a href="http://lasecwww.epfl.ch/~oechslin/publications/oechslin-indocrypt-05.pdf">
+        Gildas Avoine, Pascal Junod, and Philippe Oechslin. Time-memory trade-offs:
+        False alarm detection using checkpoints.</a>.</figcaption>
+</figure>
 
 <h2>Troncation</h2>
 
@@ -127,7 +136,8 @@ tronquée. On peut alors simplifier l'analyse en utilisant uniquement des checkp
 
 <p>On peut alors exprimer la valeur moyenne de $T$ (en nombre d'évaluations de $h$) en fonction de $(\sigma_i)_{1\le i\le t}$,
 le nombre de bits de checkpoint dans la colonne $i$. On peut alors appliquer un algorithme d'optimisation pour minimiser
-$T$ par rapport au $\sigma_i$. (TODO voir ref 01)</p>
+$T$ par rapport au $\sigma_i$
+(voir <a href="http://dx.doi.org/10.1007/978-3-319-19962-7_21">Gildas Avoine, Xavier Carpent, Adrien Bourgeois. Analysis of Rainbow Tables with Fingerprints.</a>).</p>
 
 <p>Cette optimisation donne des gains de l'ordre de 30 à 45% par rapport à des rainbow tables classiques.</p>
 
