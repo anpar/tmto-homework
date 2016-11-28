@@ -85,25 +85,37 @@ de tables, dénomées "rainbow tables" (tables arc-en-ciel). Cette section expli
 
 <h2>Un un nouveau type de chaines</h2>
 
-<p>Dans le TMTO de Hellman, pour une table, on calcule des chaines $k^j_{i+1} = f(k^j_i)$,
-pour différents $k^j_1$, avec $i\in\{1,...,t\}$ et $j\in\{1,...m\}$, typiquement.
+<p>Dans le TMTO de Hellman, pour une table, on calcule des chaines $X_{j,i+1} = (r\circ h)(X_{j,i})$,
+pour différents $X_{j,1}$, avec $i\in\{1,...,t\}$ et $j\in\{1,...m\}$, typiquement.
 Un des gros problèmes de ces chaines sont qu'elles peuvent fusionner: si
-$f(k^j_i) = f(k^{j'}_{i'})$, alors les éléments suivants des chaines sont identiques, ce qui n'est pas
+$(r\circ h)(X_{j,i}) = (r\circ h)(X_{j',i'})$, alors les éléments suivants des chaines sont identiques, ce qui n'est pas
 souhaitable: tous les morceaux de chaines qui fusionnent sont redondants, et occupent donc plus de
 mémoire que nécessaire.</p>
 
 <p> Dans le TMTO de Oechslin, on utilise une fonction de réduction différente pour chaque élément de la chaine:
-$k^j_{i+1} = h(R_i(k^j_i)) = f_{i}(k^j_i)$. L'intérêt principal est que si il y a une collision, c'est-à-dire,
-$k^j_i = k^{j'}_{i'}$, et $i \neq i'$,
-il est très probable qu'il n'y ait pas de fusion: $f_i(k^j_{i+1}) \neq f_{i'}(k^{j'}_{i'+1})$.
+$X_{j,i+1} = (r_i\circ h)(X_{j,i})$. L'intérêt principal est que si il y a une collision, c'est-à-dire,
+$X_{j,i} = X_{j',i'}$, et $i \neq i'$,
+il est très probable qu'il n'y ait pas de fusion: $(r_i\circ h)(X_{j,i+1}) \neq (r_i\circ h)(X_{j',i'+1})$.
 La probabilité qu'une collision cause une fusion est seulement de $1/t$ (cas où $i = i'$).
 Dans ce cas, on pourra même détecter la fusion: les points de fin seront identiques,
 et la table est triée sur ces points-là. On supprimera alors arbitrairement une des deux chaines de la tables.
 Cela permet d'avoir des tables dites "parfaites" ou "propres" ("perfect tables" ou "clean tables" dans la littérature).</p>
 
-<p>Pour utiliser une rainbow table pour rechercher l'inversion de $x$, on calcule d'abord $R_{n-1}(x)$, qu'on recherche
-parmi les points de terminaison ("endpoints"). Ensuite (si on n'a pas trouvé la solution), on recherche $R_{n-1}(h(R_{n-2}(x)))$,
-puis $R_{n-1}(h(R_{n-2}(h(R_{n-3}(x)))))$, et ainsi de suite.
+\[
+ 	\begin{matrix}
+  		X_{1,1}	& \xrightarrow{r_1\circ h} & X_{1,2} & \xrightarrow{r_2\circ h} & \cdots & \xrightarrow{r_{i-1}\circ h} & X_{1,i} & \xrightarrow{r_i\circ h} & \cdots & \xrightarrow{r_{t-1}\circ h} & X_{1,t} \\
+  		X_{2,1} & \xrightarrow{r_1\circ h} & X_{2,2} & \xrightarrow{r_2\circ h} & \cdots & \xrightarrow{r_{i-1}\circ h} & X_{2,i} & \xrightarrow{r_i\circ h} & \cdots & \xrightarrow{r_{t-1}\circ h} & X_{2,t} \\
+  		\vdots 	& 						 & \vdots  &						& \ddots &                        & \vdots 	& 						 & \ddots &						   & \vdots  \\
+		X_{j,1} & \xrightarrow{r_1\circ h} & X_{j,2} & \xrightarrow{r_2\circ h} & \cdots & \xrightarrow{r_{i-1}\circ h} & X_{j,i} & \xrightarrow{r_i\circ h} & \cdots & \xrightarrow{r_{t-1}\circ h} & X_{m,t} \\
+		\vdots 	& 						 & \vdots  &						& \ddots &                        & \vdots 	& 						 & \ddots &						   & \vdots  \\
+		X_{m,1}	& \xrightarrow{r_1\circ h} & X_{m,2} & \xrightarrow{r_2\circ h} & \cdots & \xrightarrow{r_{i-1}\circ h} & X_{m,i} & \xrightarrow{r_i\circ h} & \cdots & \xrightarrow{r_{t-1}\circ h} & X_{t,t} \\
+
+ 	\end{matrix}.
+\]
+
+<p>Pour utiliser une rainbow table pour rechercher l'inversion de $x$, on calcule d'abord $r_{n-1}(x)$, qu'on recherche
+parmi les points de terminaison ("endpoints"). Ensuite (si on n'a pas trouvé la solution), on recherche $r_{n-1}(h(r_{n-2}(x)))$,
+puis $r_{n-1}(h(r_{n-2}(h(r_{n-3}(x)))))$, et ainsi de suite.
 
 <h2>Performance et comparaison avec le TMTO de Hellman</h2>
 <p>Comme les "rainbow tables" évitent les fusions de chaines, on peut mettre beaucoup plus de chaines dans une même tables que
@@ -121,8 +133,6 @@ $$P_{table} = 1 - \prod_{i=1}^t\left(1-\frac{m_i}{N}\right)$$
 $$\text{avec }m_1 = m\text{ et }m_{n+1} = N\left(1-\exp\left(-\frac{m_n}{N}\right)\right).$$
 On utilise donc plusieurs rainbow tables, mais leur nombre est beaucoup moins grand que pour des tables de Hellman
 (de l'ordre de 4 ou 5).</p>
-
-<p>TODO: ajouter dessin des tables tiré de l'article de Oechslin</p>
 
 <p>Pour les tailles de tables données plus haut et pour une même probabilité de succès,
 les rainbow tables ont des avantages sur les tables de Hellman:
@@ -155,8 +165,6 @@ en utilisant le développement de Taylor $\ln(1+\epsilon) \approx 1 + \epsilon$.
 identiques dans la même colonne (cela correspond précisément à la fusion de deux chaines). La probabilité de succès
 pour une table de $m$ chaines est donc $$P_{table} = 1 - \left(1 - \frac{m}{N}\right)^t.$$</p>
 
-
-
 <h2>Taille maximale des rainbow tables</h2>
 <p>On cherche a utiliser les tables les plus grandes possibles pour minimiser le nombre de tables dans lesquelles
 on doit chercher, et donc le travail en ligne.$
@@ -169,8 +177,8 @@ qu'on peut avoir dans une rainbow table.</p>
 On sait que $$m_t = m_1\prod_{i=1}^{t-1} N\left(1-e^{-\frac{m_i}{N}}\right).$$
 Or on a au plus $m_1 = N$. En supprimant toutes les chaines qui fusionnent, on a au final $m_{max} = m_t$ chaines dans la table.</p>
 
-<p>La valeur de $m_{max}$ peut être approximée par $$m_{max}(t) \approx \frac{2N}{t+2}.
-TODO (??) donner la dérivation de ce résultat: cfr annexe A, http://lasec.epfl.ch/pub/lasec/doc/AJO05a.pdf</p>
+<p>La valeur de $m_{max}$ peut être approximée par $$m_{max}(t) \approx \frac{2N}{t+2}$$.
+Une dérivation de ce résultat est donnée en annexe A de <a href="http://lasec.epfl.ch/pub/lasec/doc/AJO05a.pdf">ce papier</a></p>
 
 <p>En considérant toujours $mt^2=N$, on devine qu'il n'est pas raisonnable d'espérer construire des table contenant beaucoup
 plus de $mt = N/t$ chaines, sachant que cela représente environ la moitié du maximum possible et le travail pour trouver
@@ -178,10 +186,8 @@ de nouvelles chaines sans collisions augmente avec la taille de la table. Pour t
 il faudrait tester de l'ordre de $N$ points de départ, ce qui correspond à un travail de précalcul de $Nt$. Avec $t>1000$, cela
 devient un travail considérable, pour un gain assez faible pour le travail en-ligne.</p>
 
-<p>TODO: détailler le travail pour une taille de table donnée, voir annexe A du doc précédent.</p>
-
 <p>Dans le cas d'une table parfaite (pas de fusions et $m = m_{max}$), la probabilité de succès est
-$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t \approx 1 - e^{-t\frac{m_{max}{N},$$ comme expliqué à la section précédente. En se basant sur
+$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t \approx 1 - e^{-t\frac{m_{max}}{N}},$$ comme expliqué à la section précédente. En se basant sur
 l'approximation de $m_{max}$, on trouve $$P_{table} \approx 1 - e^{-2} \approx 86\%.$$</p>
 
 		     		</div>
