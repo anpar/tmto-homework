@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TMTO tutorial</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+  		tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+	});
+	</script>
+	<script type="text/javascript" async src="js/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                     	TMTO
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">Introduction</a>
+                </li>
+                <li>
+                    <a href="hellman.html">TMTO d'Hellman</a>
+                </li>
+                <li>
+                    <a href="rainbow.html">Rainbow tables</a>
+                </li>
+                <li>
+                    <a href="interleaved.html">Interleaved TMTO</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+
+		<a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a>
+                <div class="row">
+                    <div class="col-lg-12">
+
+<h1>Fingerprints</h1>
+
+<p>Les fingerprints ("empreinte digitales") sont la réunion de deux techniques différentes: les checkpoints
+et la troncation du point de terminaison; la technique des fingerprints optimise conjointement les paramètres
+de ces deux méthodes pour maximiser l'efficacité du TMTO. Nous allons analyser ici ces deux méthodes séparément.</p>
+
+<p>Ces techniques sont applicables à différent types de tables, mais elles seront discutées ici dans le cadre des
+rainbow tables.</p>
+
+<h2>Checkpoints</h2>
+
+<p>Lors du calcul en ligne avec une rainbow table, plus de 50% du temps des passé à éliminer les fausses alertes [1].
+Les checkpoints sont une technique pour limiter le travail liés à ces fausse alertes. Le principe est de choisir certains
+indices des chaines $\{\alpha_i\}$ et fonctions $G_i$ produisant $\beta_i$ bits
+($G_i$ peut être par exemple un bit de parité), et pour chaque
+chaine $\left(X_{j,i}\right)_{1\le i\le t}$, stocker dans la table les valeurs de $G_i(X_{j,\alpha_i})$.</p>
+
+<p>Lors de la phase en ligne, on calcule la chaine $Y_1, Y_2, Y_3,..., Y_s$.
+Lorsqu'on trouve un point de terminaison correspondant à $Y_s$, avant de commencer le calcul de la chaine depuis le
+point de départ, on vérifie que les checkpoints qui correspondent à des $Y_i$ déjà calculés sont corrects (c'est-à-dire
+$G_i(Y_{\alpha_i+s-t}) = G_i(X_{j, \alpha_i})$ pour tous les $i$ tels que $\alpha_i+s-t \ge i$). Si au moins un des
+checkpoints n'est pas correct, alors on est face à une fausse alarme (les chaines $X$ et $Y$ sont différentes).
+Dans le cas contraire, on ne peut pas savoir s'il s'agit d'une fausse alarme ou non.</p>
+
+<p>La technique des fingerprints permet donc de réduire le nombre de fausse alarmes rencontrées (et pour lesquelles
+il faut recalculer toute la chaine), au prix d'une augmentation de la taille de la table.
+On peut jouer sur de nombreux degrés de liberté pour optimiser cette méthode:
+notamment le nombre de checkpoints, la taille des checkpoints (nombre de bits de la sortie de la fonction $G$) et
+la position des checkpoints.</p>
+
+<p>Nous ne détaillerons pas l'analyse mathématique des performance des checkpoints, on peut cependant noter 
+par exemple que l'ajout de checkpoint en augmentant la mémoire de $0.89\%$ permet de diminuer le temps de calcul
+en ligne de $10.99\%$ dans le cas d'une attaque contre DES.</p>
+
+<p>TODO: ajouter figures de ref3, fig1 et fig2</p>
+
+<h2>Troncation</h2>
+
+<p>L'idée de la troncation est simple: stocker moins de bits du point de terminaison afin de diminuer la mémoire utilisée.
+Cette technique a pour effet d'augmenter le nombre de fausse alarmes (vu qu'une valeur $f_i(\cdot)$ peut correspondre à
+plusieurs entrées dans la table).</p>
+
+<h2>Principe des fingerprints</h2>
+
+<p>On observe qu'il n'y a pas une très grande différence entre une terminaison tronquée et un checkpoint. En effet,
+on peut imaginer prendre un checkpoint avec beaucoup de bits à la fin de la chaine, ce qui correspond à un terminaison
+tronquée. On peut alors simplifier l'analyse en utilisant uniquement des checkpoints.</p>
+
+<p>On peut alors exprimer la valeur moyenne de $T$ (en nombre d'évaluations de $h$) en fonction de $(\sigma_i)_{1\le i\le t}$,
+le nombre de bits de checkpoint dans la colonne $i$. On peut alors appliquer un algorithme d'optimisation pour minimiser
+$T$ par rapport au $\sigma_i$. (TODO voir ref 01)</p>
+
+<p>Cette optimisation donne des gains de l'ordre de 30 à 45% par rapport à des rainbow tables classiques.</p>
+
+		     		</div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+</body>
+
+</html>
