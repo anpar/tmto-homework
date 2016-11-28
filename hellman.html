@@ -113,9 +113,11 @@ On utilise parfois la notation $X_{j,1} = SP_j$ (pour starting point) et $X_{j,t
 paires sont triées selon $EP_j$ pour accélerer l'étape online. On a donc, en reprenant les notations
 définies dans l'introduction, $P=mt$ et $M=2m$.</p>
 
-<p>Dans un monde idéal, les chaînes ne formeraient pas de cycle et ne fusionneraient pas. Autrement dit,
-on pourrait couvrir intégralement $A$ en prenant $mt=N$.
-Cette situation est illustrée sur la figure ci-dessous.</p>
+<p>Dans un monde idéal, les chaînes ne formeraient pas de cycle et ne fusionneraient pas. Cette situation est
+illustrée sur la figure ci-dessous. Autrement dit, avec $m$ chaînes de longueur $t$, on couvrirait une proportion
+$\frac{mt}{N}$ de l'ensemble. La probabilité de succès est donc, dans ce cas idéal, donné par
+\[ P(S) = \frac{mt}{N}. \]
+En prenant $mt=N$, on arriverait donc à une probabilité de succès égale à 1.</p>
 
 <figure class="figure center-block">
  	<img src="img/hellman-perfect-world.png" class="figure-img img-fluid rounded center-block" alt="">
@@ -124,7 +126,12 @@ Cette situation est illustrée sur la figure ci-dessous.</p>
 	ce cours</a>.</figcaption>
 </figure>
 
-<p>Malheureusement, en pratique, la situation est plus proche de celle illustrée sur la figure ci-dessous.</p>
+<p>Malheureusement, en pratique, la situation est plus proche de celle illustrée sur la figure ci-dessous.
+Ces cycles et fusions de chaînes ont évidemment des conséquences néfastes sur le TMTO. Premièrement,
+les fusions de chaînes gaspillent de la mémoire en y introduisant des informations redondantes.
+En plus de cela, les fusions de chaînes diminuent la proportion de l'ensemble $A$ couverte, et donc
+la probabilité de succès du TMTO. Enfin, celle-ci peuvent donner lieu à ce que l'on appelle des
+<i>false alarm</i>.</p>
 
 <figure class="figure center-block">
   	<img src="img/hellman-real-world.png" class="figure-img img-fluid rounded center-block" alt="">
@@ -133,15 +140,9 @@ Cette situation est illustrée sur la figure ci-dessous.</p>
 	ce cours</a>.</figcaption>
 </figure>
 
-<p>Ces cycles et fusions de chaînes ont évidemment des conséquences néfastes sur le TMTO. Premièrement,
-les fusions de chaînes gaspillent de la mémoire en y introduisant des informations redondantes.
-En plus de cela, les fusions de chaînes diminuent la proportion de l'ensemble $A$ couverte, et donc
-la probabilité de succès du TMTO. Enfin, celle-ci peuvent donner lieu à ce que l'on appelle des
-<i>false alarm</i>.</p>
-
 <p>Pour empêcher les fusions entre chaînes, une approche serait de changer la façon de calculer
-chaque chaîne
-\[ X_{i,j} = F_i((r\circ h)(X_{i,j-1}))\]
+chaque chaîne et d'utiliser
+\[ X_{i,j} = F_i((r\circ h)(X_{i,j-1})) \]
 où $F_i:A\to A$ est une fonction de permutation de bits différente pour chaque chaîne. De la sorte,
 les chaînes peuvent encore rentrer en collision mais ne peuvent plus fusionner. Ceci est illustré sur
 la figure ci-dessous.</p>
@@ -155,7 +156,7 @@ la figure ci-dessous.</p>
 </figure>
 
 <p>Pour augmenter la proportion de l'ensemble $A$ couvert par les chaînes (et donc la probabilité
-de succès du TMTO), on peut construire plusieurs tables utilisant chacune chacune des fonctions
+de succès du TMTO), on peut construire $l$ tables utilisant chacune chacune des fonctions
 de réductions différentes.</p> 
 
 <h3>Attaque (online)</h3>
@@ -194,129 +195,7 @@ est effectivement le $x$ recherché, on calcule $h(X_{j,t-1})$ et on vérifie si
 Si ce n'est pas le cas, il s'agit d'une false alarm et l'algorithme se poursuit comme expliqué
 précédemment.</p>
 
-
-<!--<p>Dans son article, Martin E. Hellman propose un TMTO dans le même contexte d'un chiffrement symétrique DES
-(un cas particulier de celui de l'introduction). Le but est donc
-de retrouver la clé $k$ utilisée par Alice et Bob pour communiquer secrètement. Pour ce faire, on procède à nouveau à une
-attaque à texte clair choisi. Cette section décrit le TMTO de Martin E. Hellman dans 2 situations différentes:
-<ul>
-    <li>dans un monde parfait où tout se passe le plus idéalement possible: on néglige certains effets "indésirables" ;</li>
-    <li>dans un cas réel, on considère à présent les effets négligés dans le cas précédent.</li>
-</ul>
-</p>
-
-Cette section est largement inspirée de l'article original de Martin E. Hellman et de
-<a href="http://www.cs.sjsu.edu/faculty/stamp/RUA/TMTO.pdf">cet excellent article</a> d'introduction au TMTO.
-Les images utilisées pour illustrer nos proposes proviennent quant à elle de
-<a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">ce cours</a>.
-
-<h2>Dans un monde parfait...</h2>
-<p>Imaginons dans un premier temps un algorithme de chiffrement par bloc opérant sur des blocs de 64 bits (en entré et en sortie)
-avec une clé de longueur $|k| = 64$ bits également. L'espace des messages chiffrés $C$ et l'espace des clés $K$ sont donc identiques et c'est
-justement cela qu'exploite Hellman pour construire son TMTO. Comme $C$ et $K$ sont identiques, le chiffrement d'un message
-choisi $p$ par une clé $k$, $c = Enc(k,p)$, peut lui même être considéré comme une clé. L'idée d'Hellman est donc de construire
-des chaînes de chiffrement du message choisi $p$ en utilisant en guise de clé le chiffrement précédent. Plus formellement, on
-part d'un point de départ $SP$ (pour starting point) choisi (aléatoirement ou non) dans l'espace des clés :
-$SP = k_0$. Ensuite, on calcule successivement $k_i = Enc(k_{i-1}, p)$ pour $i$ allant de 1 à
-$t-1$. On note $EP$ (pour end point) $k_{t-1} = Enc(k_{t-2}, p)$. La chaîne ainsi calculée est de longueur
-$t$. On répète ensuite ce processus $m$ fois de manière à obtenir $m$ chaînes de longueur $t$.</p>
-
-<p>En faisant l'hypothèse qu'aucune de ces chaines ne fusionne ou ne se croise (ce qui est impossible en pratique),
-on peut de cette manière couvrir entièrement l'espace des clés $K$ si, par exemple, $m = t = 2^{32}$. Stocker
-intégralement ces $m$ chaînes de longueur $t$ en mémoire n'aurait pas de sens, car on se ramène au cas présenté dans
-l'introduction. Une façon plus intelligente de procéder est de stocker uniquement les paires
-$(SP_i,EP_i)$, qui caractérisent chaque chaîne. Da la sorte, on utilise que $2m = 2^{33}$ mots de 64 bits en mémoire. Cela
-correspond à un peu de moins de 69 gigaoctets et est donc tout à fait raisonnable. A titre de comparaison, l'approche basée
-sur une lookup table présentée dans l'introduction demanderait pas loin de 150 exaoctets.</p>
-
-<p>Comment fait-on ensuite pour retrouver la clé secrète $k$ qu'utilisent Alice et Bob? Nous sommes ici dans le cadre d'une
-attaque à texte clair choisi, ce qui signifie que l'on connait $c$ et $p$ tel que $c = Enc(k,p)$. Comme l'espace des
-clés est entièrement couvert par des chaînes distinctes en tout point, on a la garantie que $c = k_0$ se trouve
-sur une seule de ces chaînes. Autrement dit, on sait que $c = k_0$ est le résultat du chiffrement de $p$ par la clé
-$k'$ se trouvant avant $k_0$ dans la chaîne ($k' = k$ est donc la clé inconnue que l'on recherche). Il ne reste
-donc plus qu'à identifier la chaîne sur laquelle se trouve $k_0$. On démarre donc de $c = k_0$ et on
-reconstruit la chaîne étape par étape : $k_i = Enc(k_i, p)$. A chaque étape, on vérifie si
-$k_i$ ne correspond pas à un des $EP_j$ stockés en mémoire. Après au plus $t-1$ itérations (c'est
-à dire après avoir parcouru entièrement la chaîne), on aura forcément trouver un $i$ et un $j$ tels que $k_i
-= EP_j$. Autrement dit, après au plus $t$ itérations, on a identifié la chaîne sur laquelle se trouve $c =
-k_0$. On re-démarre ensuite de $SP_j$ et on re-construit la chaîne depuis le début jusqu'à ce qu'on
-arrive à un certain $k_l = k_0$. Comme $k_l = k_0 = c = Enc(k_{l-1}, p)$,
-$k_{l-1}$ correspond à la clé inconnue $k$ que l'on recherche! A nouveau, cet étape requiert au plus $t$
-itérations. En moyenne, ces deux étapes requiert $t/2$ opérations pour un total de $t = 2^{32}$
-opérations: on est donc bien loin des $2^{64}$ opérations de la recherche exhaustive proposée dans l'introduction.</p>
-
-<p>A nouveau, il est important de comprendre que l'étape de pré-calcul reste extrêmement coûteuse
-puisqu'on a quand même besoin de $2^{64}$ opérations pour constituer toutes les chaînes. L'idée du TMTO est
-d'amortir ce coût de départ sur le long terme (c'est à dire après un grand nombre d'attaques effectuées). Si
-le but est d'attaquer une seule fois seulement, une recherche exhaustive est une meilleure approche. Le coût de pré-calcul
-peut être réduit si on décide de ne pas couvrir intégralement l'espace des clés avec des chaînes. Dans
-ce cas, l'algorithme de récupération de clé expliqué précédemment ne fonctionnera pas toujours. Il aura une
-probabilité de succès $P(S) = \frac{mt}{2^n}$ (toujours dans l'hypothèse ou les chaînes ne fusionnent
-pas et ne se croisant pas). </p>
-
-<p>En résumé, dans un monde parfait, les chaînes de chiffrement du message choisi $p$ peuvent couvrir tout
-l'espace des clés en utilisant $m=2^{n/2}$ chaînes de longueurs $t=2^{n/2}$. En terme d'espace en mémoire,
-cela donne $2m = 2^{n/2+1}$ mots de 64 bits (pour notre exemple) à stocker. En terme de nombre d'opérations,
-cela donne en moyenne $\frac{t}{2}=2^{31}$ opérations. La probabilité de succès de l'algorithme est de 1.</p>
-
-<p>La figure ci-dessous résume assez bien la situation idéale décrite dans cette section</p>. 
-
-<figure class="figure center-block">
- 	<img src="img/hellman-perfect-world.png" class="figure-img img-fluid rounded center-block" alt="">
-  	<figcaption class="figure-caption center-block">Dans un monde parfait, les chaînes ne fusionnent pas
-	et ne se croisent jamais.</figcaption>
-</figure>
-
-<h2>Dans le monde réel</h2>
-Malheureusement, le monde réel est loin d'être parfait. En pratique, les chaînes de chiffrement peuvent
-fusionner et faire des cycles, comme illustré sur la figure ci-dessous.
-
-<figure class="figure center-block">
-  <img src="img/hellman-real-world.png" class="figure-img img-fluid rounded center-block" alt="">
-  <figcaption class="figure-caption center-block">Dans le monde réel, les choses ne se passent si bien...</figcaption>
-</figure>
-
-<p>Mais qu'est-ce que cela implique exactement? Premièrement, cela implique que même avec $t=m=2^{n/2}$, on ne
-couvrira plus tout l'espace des clés puisque certaines chaînes fusionnent (autrement dit, certaines clés
-se trouvent sur deux chaînes en même temps, au détriment d'autres clés qui ne se trouvent sur aucune chaîne).
-L'algorithme n'aura donc plus une probabilité de succès égale à 1 : $P(S) < 1$. De manière plus générale
-$$ P(s) < \frac{mt}{2^n}.$$
-</p>
-
-<p>Deuxièmement, une <i>false alarm</i> (ou fausse alerte) peut se produire. Dans le monde parfait décrit
-précédemment, chaque point de la chaîne ne possédait qu'une seule pré-image. Autrement dit, pour chaque
-clé $k_i$, il n'existait qu'une seule clé *k_{i-1}* tel que $k_i  = Enc(k_{i-1}, p)$. Mais on sait qu'en
-pratique les chaînes peuvent fusionner. Autrement dit, cette clé $k_i$ qui se trouve sur une certaine chaîne $A$
-peut se trouver dans une autre chaîne $B$ à la position $j$, et donc on peut trouver $k_{j-1} \neq k_{i-1}$
-dans cette autre chaîne telle que $k_j = k_i = Enc(k_{j-1}, p)$. Selon l'endroit ou ces deux chaînes
-fusionnent, $EP_A$ ou $EP_B$ sera rencontré en premier.</p>
-
-<p>Pour réduire les fusions entre chaînes, une solution simple est changer un peu la façon de les calculer.
-Jusqu'ici, une chaîne se construisait de la façon suivante
-$$k_i = Enc(k_{i-1},p)$$
-avec $k_0 = SP$. Une autre façon de faire est d'utiliser une fonction $F$ qui permette les bits de son
-argument
-$$k_i = F(Enc(k_{i-1},p)).$$  
-En utilisant une fonction $F$ différente pour chaque chaîne, il est garantit que celle-ci ne fusionneront
-plus (elles peuvent encore cependant rentrer en collision).</p>
-
-<p>Dans le monde idéal que nous avons considérer jusqu'ici, nous avons aussi supposé que la taille de la
-clé était identique à la taille du message chiffré de telle sorte que l'espace des clés soit identique
-à l'espace des messages chiffrés. C'est d'ailleurs sur cela que se base tout ce que nous avons fait jusqu'ici.
-En pratique, cette hyptothèse n'est pas toujours vérifiée. Par exemple, l'algorithme de chiffrement par bloc DES
-(pour Data Encryption Standard) opère sur des blocs de 64 bits mais utilise des clés de 56 bits. Pour se
-ramener au cas précédent, il faut utiliser ce que l'on appelle une fonction de réduction, notée $R$ dans ce qui
-suit. Dans le cas de DES, $R$ est donc une simple fonction qui prend 64 bits en entrée et retourne 56 bits.
-Les chaînes se calculent de la façon suivante
-$$k_i = R(Enc(k_{i-1},p)).$$
-Pour augmenter la probability de succès, on peut calculer plusieurs tables contenant les paires $(SP_i, EP_i)$
-obtenues avec des fonctions de réduction différentes. On obtient alors une probabilité de succès approximativement
-donnée par
-$$P(S) \approx 1 - e^{-\frac{mrt}{|k|}}$$
-où $r$ est le nombre de tables utilisées (c'est à dire le nombre de fonctions de réductions utilisées).
-</p>-->
-
-		     		</div>
+		     </div>
                 </div>
             </div>
         </div>
