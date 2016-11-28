@@ -128,7 +128,18 @@ Si $Y_2$ est une fin de chaîne, $Y_2 = EP_j$, alors cela signifie peut-être qu
 Sinon, on calcule $Y_3$
 $$Y_3 = (r\circ h)(Y_2)$$
 et ainsi de suite. Si $A$ est entièrement couvert par les chaînes pré-calculées, alors
-cet algorithme aura une probabilité de touver $x$ égale à 1. 
+cet algorithme aura une probabilité de touver $x$ égale à 1.
+</p>
+
+<p>Revenons maintenant un peu en arrière. Dans le cas où $Y_1 = EP_j$, nous avons écrit que cela signifiait
+<i>peut-être</i> que $x=X_{j,t-1}$. Essayons de comprendre d'où provient ce "peut-être". On sait
+que
+\[ Y_1 = EP_j \Leftrightarrow r(h(x)) = r(h(X_{j,t-1})).\]
+On peut alors être tenter de dire que cela implique $h(x) = h(X_{j,t-1})$ et donc $x = X_{j,t-1}$
+(en admettant que la fonction de hachage à inverser est <i>collision-resistant</i>). Ce raisonnement
+est malheureusement faux car la fonction de réduction $r$ n'est pas injective. Cela signifie qu'il
+est possible d'avoir $r(h(x)) = r(h(X_{j,t-1}))$ et $h(x) \neq h(X_{j,t-1})$ (et donc $x \neq X_{j,t-1}$).
+Dans le jargon des TMTO, on appelle cela une <i>false alarm</i> (ou fausse alerte en français).
 </p>
 
 
