@@ -77,25 +77,26 @@
 Cette section explique le principe de fonctionnement de ce TMTO.</p>
 
 <h2>Principe de fonctionnement</h2>
+<h3>Pré-calcul</h3>
 <p>Comme expliqué dans l'introduction, l'objectif est de trouver un $x \in A$ tel que $h(x) = y$ avec $y \in B$ donné.
 Soit $r: B\to A$ une fonction dite de <i>réduction</i>. Cette fonction de réduction doit être efficace,
-déterministe et retourner des valeurs uniformément distribuée dans $A$. Une fonction de réduction typique est
+déterministe, surjective, et retourner des valeurs uniformément distribuées dans $A$. Une fonction de réduction typique est
 $$r(b) = b \mod |A|.$$
 La fonction composée $r\circ h$ va donc de l'ensemble $A$ vers l'ensemble $A$. Autrement dit, une valeur
 de sortie de $r\circ h$ peut aussi être une valeur d'entrée de $r\circ h$. La partie de pré-calcul (offline) du TMTO d'Hellman
-se base sur ce fait. Partant d'un élément arbitraire $X_{i,1}$ dans $A$, on calcule successivement
+se base sur ce fait. Partant d'un élément arbitraire $X_{j,1}$ dans $A$, on calcule successivement
 \[
 	\begin{align*}
-		X_{i,2} 	&= (r\circ h)(X_{i,1}) \\
-		X_{i,3} 	&= (r\circ h)(X_{i,2}) \\
+		X_{j,2} 	&= (r\circ h)(X_{j,1}) \\
+		X_{j,3} 	&= (r\circ h)(X_{j,2}) \\
 		\dots		&= \dots
 	\end{align*}
 \]
-de manière à former des <i>chaînes</i>. De manière plus générale, la chaîne $i$, pour $i$
+de manière à former des <i>chaînes</i>. De manière plus générale, la chaîne $j$, pour $j$
 allant de 1 à $m$, est donnée par
-$$X_{i,j} = (r\circ h)(X_{i,j-1})$$
-pour $j$ allant de 2 à $t$. On forme ainsi $m$ chaînes de longueurs $t$. On peut écrire
-cela sous le forme d'une matrice de la façon suivante
+$$X_{j,i} = (r\circ h)(X_{j,i-1})$$
+pour $i$ allant de 2 à $t$. On forme ainsi $m$ chaînes de longueurs $t$. On peut écrire
+cela sous la forme d'une matrice de la façon suivante
 \[
  	\begin{matrix}
   		X_{1,1}	& \xrightarrow{r\circ h} & X_{1,2} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{1,i} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{1,t} \\
@@ -107,12 +108,58 @@ cela sous le forme d'une matrice de la façon suivante
 
  	\end{matrix}.
 \]
-Pour conclure la phase de pré-calcul, on stock en mémoire les paires $(X_{j,1}, X_{j,t})$ représentant le début et la fin de chaque chaîne.
+Pour conclure la phase de pré-calcul, on stock dans une table les paires $(X_{j,1}, X_{j,t})$ représentant le début et la fin de chaque chaîne.
 On utilise parfois la notation $X_{j,1} = SP_j$ (pour starting point) et $X_{j,t} = EP_j$ (pour ending point). Notons que ces
 paires sont triées selon $EP_j$ pour accélerer l'étape online. On a donc, en reprenant les notations
 définies dans l'introduction, $P=mt$ et $M=2m$.</p>
 
-<p>Passons maintenant à l'attaque (partie online). Etant donné $y$ tel que $y=h(x)$, on commencer par appliquer
+<p>Dans un monde idéal, les chaînes ne formeraient pas de cycle et ne fusionneraient pas. Autrement dit,
+on pourrait couvrir intégralement $A$ en prenant $mt=N$.
+Cette situation est illustrée sur la figure ci-dessous.</p>
+
+<figure class="figure center-block">
+ 	<img src="img/hellman-perfect-world.png" class="figure-img img-fluid rounded center-block" alt="">
+  	<figcaption class="figure-caption center-block">Dans un monde parfait, les chaînes ne fusionnent pas
+	et ne se croisent jamais. Figure tirée de <a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">
+	ce cours</a>.</figcaption>
+</figure>
+
+<p>Malheureusement, en pratique, la situation est plus proche de celle illustrée sur la figure ci-dessous.</p>
+
+<figure class="figure center-block">
+  	<img src="img/hellman-real-world.png" class="figure-img img-fluid rounded center-block" alt="">
+  	<figcaption class="figure-caption center-block">Dans le monde réel, les choses ne se passent si bien...
+	Figure tirée de <a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">
+	ce cours</a>.</figcaption>
+</figure>
+
+<p>Ces cycles et fusions de chaînes ont évidemment des conséquences néfastes sur le TMTO. Premièrement,
+les fusions de chaînes gaspillent de la mémoire en y introduisant des informations redondantes.
+En plus de cela, les fusions de chaînes diminuent la proportion de l'ensemble $A$ couverte, et donc
+la probabilité de succès du TMTO. Enfin, celle-ci peuvent donner lieu à ce que l'on appelle des
+<i>false alarm</i>.</p>
+
+<p>Pour empêcher les fusions entre chaînes, une approche serait de changer la façon de calculer
+chaque chaîne
+\[ X_{i,j} = F_i((r\circ h)(X_{i,j-1}))\]
+où $F_i:A\to A$ est une fonction de permutation de bits différente pour chaque chaîne. De la sorte,
+les chaînes peuvent encore rentrer en collision mais ne peuvent plus fusionner. Ceci est illustré sur
+la figure ci-dessous.</p>
+
+<figure class="figure center-block">
+  	<img src="img/hellman-intersect.png" class="figure-img img-fluid rounded center-block" alt="">
+  	<figcaption class="figure-caption center-block">En utilisant des fonctions de permutations de bits
+	différentes pour chaque chaîne, les chaînes ne peuvent plus fusionner mais peuvent encore se croiser.
+	Figure tirée de <a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">
+	ce cours</a>.</figcaption>
+</figure>
+
+<p>Pour augmenter la proportion de l'ensemble $A$ couvert par les chaînes (et donc la probabilité
+de succès du TMTO), on peut construire plusieurs tables utilisant chacune chacune des fonctions
+de réductions différentes.</p> 
+
+<h3>Attaque (online)</h3>
+<p>Passons maintenant à l'attaque. Etant donné $y$ tel que $y=h(x)$, on commencer par appliquer
 la fonction de réduction $r$ pour obtenir
 $$Y_1 = r(y) = (r\circ h)(x).$$
 Comme les paires $(SP_j, EP_j)$ stockées en mémoire sont triées selon $EP_j$, on peut vérifier
@@ -127,10 +174,12 @@ $$Y_2 = (r\circ h)(Y_1).$$
 Si $Y_2$ est une fin de chaîne, $Y_2 = EP_j$, alors cela signifie peut-être que $x=X_{j,t-2}$.
 Sinon, on calcule $Y_3$
 $$Y_3 = (r\circ h)(Y_2)$$
-et ainsi de suite. Si $A$ est entièrement couvert par les chaînes pré-calculées, alors
-cet algorithme aura une probabilité de touver $x$ égale à 1.
-</p>
+et ainsi de suite.</p> 
 
+<p>Ces deux phases de l'attaque nécessitent maximum $t$ et en moyenne $t/2$ opérations chacune.
+En moyenne, on a donc $T=t$.</p>
+
+<h3>False alarm</h3>
 <p>Revenons maintenant un peu en arrière. Dans le cas où $Y_1 = EP_j$, nous avons écrit que cela signifiait
 <i>peut-être</i> que $x=X_{j,t-1}$. Essayons de comprendre d'où provient ce "peut-être". On sait
 que
@@ -139,8 +188,11 @@ On peut alors être tenter de dire que cela implique $h(x) = h(X_{j,t-1})$ et do
 (en admettant que la fonction de hachage à inverser est <i>collision-resistant</i>). Ce raisonnement
 est malheureusement faux car la fonction de réduction $r$ n'est pas injective. Cela signifie qu'il
 est possible d'avoir $r(h(x)) = r(h(X_{j,t-1}))$ et $h(x) \neq h(X_{j,t-1})$ (et donc $x \neq X_{j,t-1}$).
-Dans le jargon des TMTO, on appelle cela une <i>false alarm</i> (ou fausse alerte en français).
-</p>
+Dans le jargon des TMTO, on appelle cela une <i>false alarm</i> (ou fausse alerte en français). Il est
+assez facile de vérifier si la valeur trouvée est une false alarm ou non. Pour vérifier si $X_{j,t-1}$
+est effectivement le $x$ recherché, on calcule $h(X_{j,t-1})$ et on vérifie si cela est bien égal à $y$.
+Si ce n'est pas le cas, il s'agit d'une false alarm et l'algorithme se poursuit comme expliqué
+précédemment.</p>
 
 
 <!--<p>Dans son article, Martin E. Hellman propose un TMTO dans le même contexte d'un chiffrement symétrique DES
