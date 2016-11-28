@@ -155,7 +155,7 @@ donc $$P_{table} = 1 - \prod_{i=1}^t \left(1-\frac{m_i}{N}\right).$$</p>
 <p>Il reste à calculer le nombre d'éléments distincts dans chaque colonne. Par construction de la table, $m_1 = m$.
 En connaissant $m_i$, on peut calculer $m_{i+1}$: soit une valeur $x_{i+1}^*\in A$, si $\{x_{i,j}\}_{1\le j\le m_i}$
 est l'ensemble des valeurs de la colonne $i$ et en modélisant $f_i$ comme une fonction aléatoire, la probabilité
-que $f_i(x_{i,j} \neq x_{i+1}^*$ est de $1 - 1/N$ pour un $j$ fixé. La probabilité que $f_i(x_{i,j} \neq x_{i+1}^*$
+que $f_i(x_{i,j} \neq x_{i+1}^*$ est de $1 - 1/N$ pour un $j$ fixé. La probabilité que $f_i(x_{i,j}) \neq x_{i+1}^*$
 pour tous les $j$ est de $(1-1/N)^{m_i}$. Par conséquent, la probabilité que $x_{i+1}^*$ soit dans la colonne $i+1$
 est de $1 - (1-1/N)^{m_i}$. Le nombre de valeurs distinctes dans la colonne $i+1$ est donc
 $$N\left(1 - \left(1-\frac{1}{N}\right)^{m_i}\right) = N\left(1 - e^{\ln(1-1/N)m_i}\right) \approx N \left(1 - e^{-\frac{m_i}{N}}\right)$$
