@@ -74,10 +74,10 @@
 L'amélioration de cette technique tient à la façon dont sont caculées les chaines, ce qui donne un nouveau type
 de tables, dénomées "rainbow tables" (tables arc-en-ciel). Cette section explique le principe de fonctionnement de ce TMTO.</p>
 
-<h2>Une nouvelle façon de calculer de chaines</h2>
+<h2>Un un nouveau type de chaines</h2>
 
 <p>Dans le TMTO de Hellman, pour une table, on calcule des chaines $k^j_{i+1} = f(k^j_i)$,
-pour différents $k^j_1$, avec $i\in\{1,...,t}$ et $j\in\{1,...m\}$, typiquement.
+pour différents $k^j_1$, avec $i\in\{1,...,t\}$ et $j\in\{1,...m\}$, typiquement.
 Un des gros problèmes de ces chaines sont qu'elles peuvent fusionner: si
 $f(k^j_i) = f(k^{j'}_{i'})$, alors les éléments suivants des chaines sont identiques, ce qui n'est pas
 souhaitable: tous les morceaux de chaines qui fusionnent sont redondants, et occupent donc plus de
@@ -96,6 +96,7 @@ Cela permet d'avoir des tables dites "parfaites" ou "propres" ("perfect tables" 
 parmi les points de terminaison ("endpoints"). Ensuite (si on n'a pas trouvé la solution), on recherche $R_{n-1}(h(R_{n-2}(x)))$,
 puis $R_{n-1}(h(R_{n-2}(h(R_{n-3}(x)))))$, et ainsi de suite.
 
+<h2>Performance et comparaison avec le TMTO de Hellman</h2>
 <p>Comme les "rainbow tables" évitent les fusions de chaines, on peut mettre beaucoup plus de chaines dans une même tables que
 avec le TMTO de Hellman. Si pour Hellman on fait $l$ tables avec $m$ chaines de longueur $t$ (avec $mt^2 = N), on peut faire
 $l/t$ rainbow tables contenant $mt$ chaines de longueur $t$ pour avoir une probabilité de succes semblable. En effet,
@@ -111,6 +112,8 @@ $$P_{table} = 1 - \prod_{i=1}^t\left(1-\frac{m_i}{N}\right)$$
 $$\text{avec }m_1 = m\text{ et }m_{n+1} = N\left(1-\exp\left(-\frac{m_n}{N}\right)\right).$$
 On utilise donc plusieurs rainbow tables, mais leur nombre est beaucoup moins grand que pour des tables de Hellman
 (de l'ordre de 4 ou 5).</p>
+
+<p>TODO: ajouter dessin des tables tiré de l'article de Oechslin</p>
 
 <p>Pour les tailles de tables données plus haut et pour une même probabilité de succès,
 les rainbow tables ont des avantages sur les tables de Hellman:
