@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TMTO tutorial</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+  		tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+	});
+	</script>
+	<script type="text/javascript" async src="js/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                     	TMTO
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">Introduction</a>
+                </li>
+                <li>
+                    <a href="hellman.html">TMTO d'Hellman</a>
+                </li>
+                <li>
+                    <a href="rainbow.html">Rainbow tables</a>
+                </li>
+                <li>
+                    <a href="interleaved.html">Interleaved TMTO</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+
+		<a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a>
+                <div class="row">
+                    <div class="col-lg-12">
+
+<h1>TMTO entrelacés</h1>
+
+<p>Lorsque les valeurs de l'ensemble $A$ ne sont pas équiprobable, et qu'on connait à l'avance la répartition
+des probabilités, on peut se poser la question de l'existence d'une méthode qui prendrait en compte cette
+information et serait donc plus efficace.</p>
+
+<p>Les TMTO entrelacés sont une possibilté dans le cas où on peut partitionner l'ensemble $A$ en sous-ensembles
+de différentes densités (on définit la densité d'un sous-ensemble $A_i$ comme $P(x\in A_i)/|A_i|$). Un exemple
+type est le cas où $A$ est un ensemble de mots de passe. Les mots de passe alphanumériques sont beaucoup plus
+probables que les mots de passe contenant des "caractères spéciaux", le (petit) sous-ensemble des mots de passe
+alphanumérique est donc beaucoup plus dense que sont complémentaire.</p>
+
+<p>Dans ce cas, on peut effectuer un TMTO sur chacun des sous-ensemble, et optimiser l'allocation de mémoire
+et de temps pour maximiser les chances de réussite. On peut également décider de l'ordre dans lequel on cherche
+dans les différents TMTO: on prévoit un planning de recherche: chaque étape de la recherche correspond à l'exploration
+d'une colonne dans une table d'un TMTO, et le planning décide du TMTO dans lequel on cherche à chaque étape.</p>
+
+<p>En implémentant cette technique sur des ensembles de mots de passe, les gains peuvent être importants:
+certaines expériences atteignent un gain supérieur à 70 en divisant l'espace en trois sous-ensembles.</p>
+
+// TODO: ajouter figure subset + balancer de ref 2
+
+		     		</div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+</body>
+
+</html>
