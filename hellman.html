@@ -56,6 +56,9 @@
                 <li>
                     <a href="interleaved.html">Interleaved TMTO</a>
                 </li>
+		<li>
+                    <a href="defense.html">Protection contre les TMTO</a>
+                </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
@@ -73,7 +76,63 @@
 <a href="http://www.cs.miami.edu/home/burt/learning/Csc609.102/doc/36.pdf">A cryptanalytic Time-Memory Trade-Off</a>.
 Cette section explique le principe de fonctionnement de ce TMTO.</p>
 
-<p>Dans son article, Martin E. Hellman propose un TMTO dans le même contexte d'un chiffrement symétrique DES
+<h2>Principe de fonctionnement</h2>
+<p>Comme expliqué dans l'introduction, l'objectif est de trouver un $x \in A$ tel que $h(x) = y$ avec $y \in B$ donné.
+Soit $r: B\to A$ une fonction dite de <i>réduction</i>. Cette fonction de réduction doit être efficace,
+déterministe et retourner des valeurs uniformément distribuée dans $A$. Une fonction de réduction typique est
+$$r(b) = b \mod |A|.$$
+La fonction composée $r\circ h$ va donc de l'ensemble $A$ vers l'ensemble $A$. Autrement dit, une valeur
+de sortie de $r\circ h$ peut aussi être une valeur d'entrée de $r\circ h$. La partie de pré-calcul (offline) du TMTO d'Hellman
+se base sur ce fait. Partant d'un élément arbitraire $X_{i,1}$ dans $A$, on calcule successivement
+\[
+	\begin{align*}
+		X_{i,2} 	&= (r\circ h)(X_{i,1}) \\
+		X_{i,3} 	&= (r\circ h)(X_{i,2}) \\
+		\dots		&= \dots
+	\end{align*}
+\]
+de manière à former des <i>chaînes</i>. De manière plus générale, la chaîne $i$, pour $i$
+allant de 1 à $m$, est donnée par
+$$X_{i,j} = (r\circ h)(X_{i,j-1})$$
+pour $j$ allant de 2 à $t$. On forme ainsi $m$ chaînes de longueurs $t$. On peut écrire
+cela sous le forme d'une matrice de la façon suivante
+\[
+ 	\begin{matrix}
+  		X_{1,1}	& \xrightarrow{r\circ h} & X_{1,2} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{1,i} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{1,t} \\
+  		X_{2,1} & \xrightarrow{r\circ h} & X_{2,2} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{2,i} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{2,t} \\
+  		\vdots 	& 						 & \vdots  &						& \ddots &                        & \vdots 	& 						 & \ddots &						   & \vdots  \\
+		X_{j,1} & \xrightarrow{r\circ h} & X_{j,2} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{j,i} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{m,t} \\
+		\vdots 	& 						 & \vdots  &						& \ddots &                        & \vdots 	& 						 & \ddots &						   & \vdots  \\
+		X_{m,1}	& \xrightarrow{r\circ h} & X_{m,2} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{m,i} & \xrightarrow{r\circ h} & \cdots & \xrightarrow{r\circ h} & X_{t,t} \\
+
+ 	\end{matrix}.
+\]
+Pour conclure la phase de pré-calcul, on stock en mémoire les paires $(X_{j,1}, X_{j,t})$ représentant le début et la fin de chaque chaîne.
+On utilise parfois la notation $X_{j,1} = SP_j$ (pour starting point) et $X_{j,t} = EP_j$ (pour ending point). Notons que ces
+paires sont triées selon $EP_j$ pour accélerer l'étape online. On a donc, en reprenant les notations
+définies dans l'introduction, $P=mt$ et $M=2m$.</p>
+
+<p>Passons maintenant à l'attaque (partie online). Etant donné $y$ tel que $y=h(x)$, on commencer par appliquer
+la fonction de réduction $r$ pour obtenir
+$$Y_1 = r(y) = (r\circ h)(x).$$
+Comme les paires $(SP_j, EP_j)$ stockées en mémoire sont triées selon $EP_j$, on peut vérifier
+très efficacement si $Y_1$  est la fin d'une chaîne. Si c'est le cas, $Y_1 = EP_j$, cela
+signifie <i>peut-être</i> (nous reviendrons sur cela un peu plus loin) que $x=X_{j,t-1}$ puisque,
+par construction
+$$EP_j = X_{j,t} = (r\circ h)(X_{j,t-1}).$$
+Comme on ne connaît pas $X_{j,t-1}$ (puisqu'on ne l'a pas gardé en mémoire), il faut le recalculer
+en construisant à nouveau la chaîne démarrant en $SP_j$. Si en revanche $Y_1$ n'est pas une fin
+de chaîne, alors on calcule
+$$Y_2 = (r\circ h)(Y_1).$$
+Si $Y_2$ est une fin de chaîne, $Y_2 = EP_j$, alors cela signifie peut-être que $x=X_{j,t-2}$.
+Sinon, on calcule $Y_3$
+$$Y_3 = (r\circ h)(Y_2)$$
+et ainsi de suite. Si $A$ est entièrement couvert par les chaînes pré-calculées, alors
+cet algorithme aura une probabilité de touver $x$ égale à 1. 
+</p>
+
+
+<!--<p>Dans son article, Martin E. Hellman propose un TMTO dans le même contexte d'un chiffrement symétrique DES
 (un cas particulier de celui de l'introduction). Le but est donc
 de retrouver la clé $k$ utilisée par Alice et Bob pour communiquer secrètement. Pour ce faire, on procède à nouveau à une
 attaque à texte clair choisi. Cette section décrit le TMTO de Martin E. Hellman dans 2 situations différentes:
@@ -192,7 +251,7 @@ obtenues avec des fonctions de réduction différentes. On obtient alors une pro
 donnée par
 $$P(S) \approx 1 - e^{-\frac{mrt}{|k|}}$$
 où $r$ est le nombre de tables utilisées (c'est à dire le nombre de fonctions de réductions utilisées).
-</p>
+</p>-->
 
 		     		</div>
                 </div>
