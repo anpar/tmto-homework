@@ -79,7 +79,7 @@
 
 <h1>Protection contre les TMTO</h1>
 
-<p>Dans cette section, nous reprenons brièvement les exmples de l'introduction et montrons comment on peut
+<p>Dans cette section, nous reprenons brièvement les exemples de l'introduction et montrons comment on peut
 mettre en place des protections qui rendent les TMTO expliqués ici inopérants.</p>
 
 <h2>Chiffrement</h2>
@@ -101,19 +101,19 @@ la situation où les TMTO s'appliquent.</p>
 <h3>Salage</h3>
 
 <p>Lorsqu'on enregistre des mots de passe, au lieu de stocker $h(m_p)$, on peut utiliser une nouvelle fonction
-$h': A \cross S \rightarrow B$, avec $S$ un espace assez grand (par exemple $|S| = 2^{128}$).
+$h': A \times S \rightarrow B$, avec $S$ un espace assez grand (par exemple $|S| = 2^{128}$).
 Au moment de stocker un mot de passe, on choisit aléatoirement un sel $s\in S$, et on stocke $(h'(m_p, s), s)$.
 Connaissant $s$ et $h'(m_p, s)$, on peut facilement tester si un mot de passe donné est correct.</p>
 
 <p>Pour attaquer cette protection avec un TMTO, on peut envisager deux options: travailler avec l'espace
-$A \cross S$, mais alors $N = |A \cross S| \le |S|$, et $S$ est suffisament grand pour empêcher une recherche
+$A \times S$, mais alors $N = |A \times S| \le |S|$, et $S$ est suffisament grand pour empêcher une recherche
 par force brute; un TMTO sera donc inapplicable. Une autre option est d'attaquer la fonction $h_s'$. Cependant,
 comme $s$ est choisi aléatoirement, il sera vraisemblablement (quasi-)unique dans la base de données. On ne peut
 donc pas utiliser un TMTO pour rendre l'attaque contre toute une base de données plus efficace.</p>
 
 <p>Concernant l'autre intérêt des TMTO, c'est-à-dire avoir un délai court entre le moment où l'attaquant
 connait $h'(m_p, s)$ et le moment où l'attaque se finit, on peut tout d'abord remarquer que si $s$ et
-$h'(m_p, s$ sont stockés dans la même base de donnée, il est peu probable qu'un attaquant connaisse
+$h'(m_p, s)$ sont stockés dans la même base de donnée, il est peu probable qu'un attaquant connaisse
 $s$ sans connaitre $h'(m_p, s)$, et $s$ est évidemment nécessaire pour pouvoir précalculer la table
 pour inverser $h_s'$.</p>
 
