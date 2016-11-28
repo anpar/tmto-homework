@@ -69,7 +69,7 @@
                     <div class="col-lg-12">
 
 <h1>Le compromis temps-mémoire de Oechslin (Rainbow tables)</h1>
-<p>Philippe Oechslin introduit en 2005 une amélioration au TMTO de Hellman dans un article
+<p>Philippe Oechslin introduit en 2003 une amélioration au TMTO de Hellman dans un article
 <a href="http://lasec.epfl.ch/pub/lasec/doc/Oech03.pdf">Making a Faster Cryptanalytic Time-Memory Trade-Off</a>.
 L'amélioration de cette technique tient à la façon dont sont caculées les chaines, ce qui donne un nouveau type
 de tables, dénomées "rainbow tables" (tables arc-en-ciel). Cette section explique le principe de fonctionnement de ce TMTO.</p>
@@ -98,7 +98,7 @@ puis $R_{n-1}(h(R_{n-2}(h(R_{n-3}(x)))))$, et ainsi de suite.
 
 <h2>Performance et comparaison avec le TMTO de Hellman</h2>
 <p>Comme les "rainbow tables" évitent les fusions de chaines, on peut mettre beaucoup plus de chaines dans une même tables que
-avec le TMTO de Hellman. Si pour Hellman on fait $l$ tables avec $m$ chaines de longueur $t$ (avec $mt^2 = N), on peut faire
+avec le TMTO de Hellman. Si pour Hellman on fait $l$ tables avec $m$ chaines de longueur $t$ (avec $mt^2 = N$), on peut faire
 $l/t$ rainbow tables contenant $mt$ chaines de longueur $t$ pour avoir une probabilité de succes semblable. En effet,
 les deux ensembles de tables continnent le même nombre d'éléments dans les chaines et on très peu de redondance dans
 ces éléments. Pour les tables de Hellman, la faible redondance est due au grand nombre de petite tables et donc il y a peu
@@ -124,6 +124,56 @@ les rainbow tables ont des avantages sur les tables de Hellman:
     <li>On fait $t$ fois moins de recherches dans des tables avec le TMTO d'Oechslin qu'avec celui d'Hellman (mais
         les tables d'Hellman sont $t$ fois plus petites).</li>
 </ul></p>
+
+<h2>Probabilité de succès</h2>
+
+<p>La probabilité de succès d'une table est la probabilité qu'une valeur donnée se trouve dans la table.
+En considérant que les colonnes de la table sont idépendantes (ce qui est le cas si $h$ est une bonne fonction
+de hachage), et qu'il y a $m_i$ éléments distincts dans la colonne $i$, la probabilité d'échec sur la table
+est le produit des probabilités d'échec sur chacune des colonnes ($1 - m_i/N$). La probabilité de succès est
+donc $$P_{table} = 1 - \prod_{i=1}^t \left(1-\frac{m_i}{N}\right).$$</p>
+
+<p>Il reste à calculer le nombre d'éléments distincts dans chaque colonne. Par construction de la table, $m_1 = m$.
+En connaissant $m_i$, on peut calculer $m_{i+1}$: soit une valeur $x_{i+1}^*\in A$, si $\{x_{i,j}\}_{1\le j\le m_i}$
+est l'ensemble des valeurs de la colonne $i$ et en modélisant $f_i$ comme une fonction aléatoire, la probabilité
+que $f_i(x_{i,j} \neq x_{i+1}^*$ est de $1 - 1/N$ pour un $j$ fixé. La probabilité que $f_i(x_{i,j} \neq x_{i+1}^*$
+pour tous les $j$ est de $(1-1/N)^{m_i}$. Par conséquent, la probabilité que $x_{i+1}^*$ soit dans la colonne $i+1$
+est de $1 - (1-1/N)^{m_i}$. Le nombre de valeurs distinctes dans la colonne $i+1$ est donc
+$$N\left(1 - \left(1-\frac{1}{N}\right)^{m_i}\right) = N\left(1 - e^{\ln(1-1/N)m_i}\right) \approx N \left(1 - e^{-\frac{m_i}{N}}\right)$$
+en utilisant le développement de Taylor $\ln(1+\epsilon) \approx 1 + \epsilon$.</p>
+
+<p>Remarque: si élimine les chaines qui fusionnent en construisant la table, il n'y a jamais deux éléments
+identiques dans la même colonne (cela correspond précisément à la fusion de deux chaines). La probabilité de succès
+pour une table de $m$ chaines est donc $$P_{table} = 1 - \left(1 - \frac{m}{N}\right)^t.$$</p>
+
+
+
+<h2>Taille maximale des rainbow tables</h2>
+<p>On cherche a utiliser les tables les plus grandes possibles pour minimiser le nombre de tables dans lesquelles
+on doit chercher, et donc le travail en ligne.$
+
+<p>Comme il n'y a pas de problèmes de fusions dans les rainbow tables, on pourrait croire qu'on peut les faire
+très grandes, et donc utiliser une seule table. Cela n'est pas correct: il y a un nombre maximal de chaines différentes
+qu'on peut avoir dans une rainbow table.</p>
+
+<p>On obtient aisément la taille maximum en considérant le nombre d'éléments distincts dans la colonne $t$, $m_t$.
+On sait que $$m_t = m_1\prod_{i=1}^{t-1} N\left(1-e^{-\frac{m_i}{N}}\right).$$
+Or on a au plus $m_1 = N$. En supprimant toutes les chaines qui fusionnent, on a au final $m_{max} = m_t$ chaines dans la table.</p>
+
+<p>La valeur de $m_{max}$ peut être approximée par $$m_{max}(t) \approx \frac{2N}{t+2}.
+TODO (??) donner la dérivation de ce résultat: cfr annexe A, http://lasec.epfl.ch/pub/lasec/doc/AJO05a.pdf</p>
+
+<p>En considérant toujours $mt^2=N$, on devine qu'il n'est pas raisonnable d'espérer construire des table contenant beaucoup
+plus de $mt = N/t$ chaines, sachant que cela représente environ la moitié du maximum possible et le travail pour trouver
+de nouvelles chaines sans collisions augmente avec la taille de la table. Pour trouver une table avec $m_{max}$ chaines,
+il faudrait tester de l'ordre de $N$ points de départ, ce qui correspond à un travail de précalcul de $Nt$. Avec $t>1000$, cela
+devient un travail considérable, pour un gain assez faible pour le travail en-ligne.</p>
+
+<p>TODO: détailler le travail pour une taille de table donnée, voir annexe A du doc précédent.</p>
+
+<p>Dans le cas d'une table parfaite (pas de fusions et $m = m_{max}$), la probabilité de succès est
+$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t \approx 1 - e^{-t\frac{m_{max}{N},$$ comme expliqué à la section précédente. En se basant sur
+l'approximation de $m_{max}$, on trouve $$P_{table} \approx 1 - e^{-2} \approx 86\%.$$</p>
 
 		     		</div>
                 </div>
