@@ -56,6 +56,9 @@
                 <li>
                     <a href="interleaved.html">Interleaved TMTO</a>
                 </li>
+                <li>
+                    <a href="defense.html">Protection contre les TMTO</a>
+                </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
@@ -75,6 +78,71 @@ suivantes s'intéresseront quant à elle à la description du fonctionnement d'a
 en oeuvre un compromis temps-mémoire.</p>
 
 <h2>Objectif d'un compromis temps-mémoire</h2>
+
+<p>Un compromis temps mémoire (cryptanalytique) est une technique qui vise à accélérer le calcul de <strong>l'inversion</strong>
+d'une fonction à sens unique $h: A \rightarrow B$ (par exemple, une fonction de hachage): étant donné $y\in B$, on cherche
+$x\in A$ tel que $y = h(x)$.</p>
+
+<p>On peut identifier deux techniques très simples pour résoudre ce problème:
+<ol>
+    <li>Pour chaque $x'\in A$, on calcule $y'=h(x')$ et on retourne $x = x'$ ssi $y' = y$. Cette technique nécessite
+    $N$ calculs de $h$ dans le pire cas ($N/2$ en moyenne).</li>
+    <li>Pour chaque $x'\in A$, on calcule $y'=h(x')$, on stocke ensuite une table contenant les correspondances
+        $(x', y')$. On trie cette table sur les valeurs de $y'$. On cherche ensuite $y$ dans la table, et on trouve
+        immédiatement le $x$ qui correspond. Cette technique nécessite de calculer $N$ valeurs de $h$ et de stocker en
+        mémoire $N$ paires $(x', h(x')$, puis de faire une recherche dans la mémoire.</li>
+</ol>
+</p>
+
+<p>À priori, ces deux attaques sont semblables: il s'agit essentiellement d'une attaque par <strong>brute-force</strong>,
+on teste toutes les entrées possibles de la fonction $h$. La différence entre les deux techniques est plus évidente
+lorsque l'on se place dans une situation où on veut mener plusieurs attaques contre une même fonction. Avec la première
+technique, trouver les inverses de $n$ valeurs de $B$ demande $n$ fois le travail requis pour trouver l'inverse d'une
+valeur. Avec la deuxième technique, par contre, trouver $n$ inverses demande à peine plus de travail de que trouver un
+seul inverse: faire une recherche dans la table est très rapide (cela ne nécessite pas
+de calculer des valeurs de la fonction $h$ (souvent coûteux), et on peut utiliser une recherche dichotomique ou une table
+de hachage). L'essentiel du travail vient du précalcul de la table.</p>
+
+<p>Il existe une autre situation dans laquelle la deuxième technique est plus avantageuse: si on doit trouver
+rapidemement l'inverse d'une valeur, mais que la fonction $h$ est connue longtemps à l'avance.
+On calcule alors à l'avance toute la table, et on est ensuite capable d'inverser très rapidement n'importe quelle valeur.</p>
+
+<p>La deuxième méthode est donc nettement supérieure à la première dans ces situations. Elle a cependant un gros inconvénient:
+il faut stocker toute la table, qui contient $N = |A|$ lignes. Or on s'intéresse à des problèmes où $N$ est grand (par exemple
+$N = 2^{56}$ pour DES (Data Encryption Standard), voir ci-dessous). Il est donc souvent impossible de stocker toute la table. La première méthode, quand
+à elle, ne nécessite aucune mémoire.</p>
+
+<p>Un compromis temps-mémoire est donc une technique qui garde les propriété intéressantes de la deuxième méthode
+(on peut calculer à faible coût des inverses en utilisant une table précalculée), tout en gardant une utilisation
+de mémoire raisonnable, de sorte que la méthode soit utilisable sur de vraies machines. Le compromis se situe
+entre la mémoire et le temps nécessaire à chaque attaque: on utilise moins de mémoire, mais pour chaque attaque, il faudra faire
+plus de travail qu'une simple recherche dans une table; on veut cependant garder ce travail largement inférieur à
+l'inversion complète (la première méthode).</p>
+
+<h2>Définitions</h2>
+
+<p>On a donc:
+<ul>
+    <li>$h: A \rightarrow B$, la fonction à inverser;</li>
+    <li>$N = |A|$, la taille du problème;</li>
+    <li>$M$, la quantité de mémoire utilisée;</li>
+    <li>$T$, le temps de calcul nécessaire pour chaque attaque (calcul "en-ligne");</li>
+    <li>$P$, le temps de pré-calcul pour générer la table;</li>
+</ul>
+</p>
+
+<p>Comme on s'intéresse à des questions algorithmiques, $M$, $T$ et $P$ seront définies à une constante près,
+en comptant seulement le nombre de calculs de $h$ pour $T$ et $P$.</p>
+
+<p>Pour les techniques vues ci-dessus, on a:
+<ol>
+    <li>$P = 0$, $M = 0$, $T = N$;</li>
+    <li>$P = N$, $M = N$, $T = 0$.</li>
+</ol>
+</p>
+
+<h2>Exemples d'application</h2>
+<h3>Cryptanalyse d'un chiffrement</h3>
 <p>On se place ici dans le dispositif habituel dans lequel Alice veut envoyer un message $m$ à Bob de façon sécurisée.
 Pour ce faire, on suppose que Alice et Bob ont déjà eu l'occasion de s'échanger une clé secrète $k$ leur permettant de
 communiquer de façon sécurisée en utilisant leur algorithme de chiffrement favori. Nous allons ici jouer le rôle du méchant,
@@ -83,39 +151,55 @@ peut cependant observer que des messages chiffrés $c = Enc(k,m)$ où $Enc$ repr
 d'Alice et Bob. Le seul moyen de déchiffrer un tel message est de connaître la clé secrète $k$, $m = Dec(k,c)$ où $Dec$
 représente l'algorithme de déchiffrement.</p>
 
+<p>En utilisant les notations définies ci-dessus, $A$ est l'ensemble des clés possibles, $B$ l'ensemble des messages en clair
+et $h(k') = Dec(k', c)$.</p>
+
+<h4>Attaques "naïves"</h4>
 <p>Admettons maintenant que, d'une manière ou d'une autre, Eve parvienne à obtenir le chiffrement d'un message $m'$ connu.
 Un tel type d'attaque est appelée "attaque à texte clair connu" (ou known-plaintext attack en anglais).
 Eve est donc maintenant en possession de $c' = Enc(k, m')$. A partir de là, il devient possible pour Eve d'essayer de trouver
-la clé secrète partagée entre Alice et Bob. Une première idée serait de simplement procéder à une recherche exhaustive sur
-toutes les clés $k$ et de vérifier si $Enc(k, m') = c'$ pour chacune de ces clés. Un tel algorithme nécessiterait cependant,
-dans le pire des cas, autant d'étapes qu'il y a de clés possibles. Si il y a $N$ clés $k$, cela fait $N$ possibilités
-à explorer. Notons néanmoins que cette approche ne requiert <strong>aucune mémoire</strong>.</p>
+la clé secrète partagée entre Alice et Bob. La première approche vue ci-dessus serait de simplement procéder à une recherche
+exhaustive sur toutes les clés $k$ et de vérifier si $Enc(k, m') = c'$ pour chacune de ces clés.
 
-<p>Une deuxième approche à ce problème serait, pour un message $m'$ choisi par Eve,
-de précalculer $c = Enc(k, m')$ pour toutes les
+<p>La deuxième approche serait, pour un message $m'$ choisi par Eve, de précalculer $c = Enc(k, m')$ pour toutes les
 clés $k$ possibles et de stocker les résultats dans une énorme table indexée par $c$ et dont chaque ligne contiendrait
-$k$ la clé correspondante. On procède ensuite à un autre type d'attaque. Eve, d'une manière ou d'une autre, parvient à
-obtenir le chiffrement du message $m'$ qu'elle a choisi:
-$c' = Enc(k, m')$. Tout ce qu'il lui reste à faire ensuite est d'aller chercher dans la table qu'elle a stockée en mémoire
-la clé $k$ correspondant au chiffrement $c'$ de $m'$. Cette approche diffère de la précédente en deux points. Premièrement,
-l'attaque nécessite une étape de <strong>pré-calcul</strong> qui nécessite à nouveau
-$N$ étapes. En plus de cela, cette approche nécessite une mémoire assez grande pour stocker entièrement la table
-de correspondante entre chiffrés et clés. Jusqu'ici, on serait tenter de dire que cette approche n'a aucun intèrêt puisqu'en
-plus d'utiliser $N$ étapes comme l'approche précédente, il nous faut une mémoire permettant de stocker une table de $N$
-lignes. Cependant, cette méthode a pour avantage de s'éxécuter ensuite en <strong>temps constant</strong>. Cette approche n'a du sens
-que si l'on doit faire plusieurs attaques (sinon, autant directement utiliser la première approche et économiser $N$
-lignes de mémoires), cela permet d'amortir le coût de pré-calcul. Enfin, il est important de noter que le type d'attaque
-utilisée ici diffère du cas précédent. En effet, Eve doit cette fois mener une "attaque à texte clair choisir" (ou
-chosen-plaintext attack en anglais). Une telle attaque peut sembler irréaliste à première vue:
-comment Eve pourrait-elle convaincre Bob ou
-Alice de chiffrer un message pour elle? Et pourtant, de nombreux exemples de telles attaques existent. Le plus connu est
-peut-être <a href="http://www.slate.com/blogs/quora/2013/11/20/u_s_in_world_war_ii_how_the_navy_broke_japanese_codes_before_midway.html">celui-ci</a>.</p>
+$k$ la clé correspondante.</p>
 
-<p>Un problème de taille demeure cependant. Une taille de clé typique pour un chiffrement à clé symétrique est 128 bits. Cela
-signifie que $N$, le nombre total de clés, vaut $2^{128} = 3.4\cdot 10^{38}$. Aucun ordinateur à l'heure actuelle (et probablement pour
-très longtemps encore) n'est capable de faire un recherche exhaustive sur un espace d'une telle taille, et encore moins
-de stocker une table contenant $2^128$ lignes en mémoire... C'est là qu'intervient le compromis temps-mémoire qui, comme son
-nom l'indique, vise à trouver un juste milieu entre temps d'exécution et mémoire utilisée.</p>
+<p>Le type d'attaque utilisée ici diffère du cas précédent. Eve doit cette fois mener une "attaque à texte clair choisi" (ou
+chosen-plaintext attack en anglais): Eve doit arriver à faire calculer $c' = Enc(k, m')$ par Alice ou Bob.
+Une telle attaque peut sembler irréaliste à première vue: comment Eve pourrait-elle convaincre Bob ou
+Alice de chiffrer un message pour elle? Et pourtant, de nombreux exemples de telles attaques existent. Le plus connu est
+peut-être
+<a href="http://www.slate.com/blogs/quora/2013/11/20/u_s_in_world_war_ii_how_the_navy_broke_japanese_codes_before_midway.html">celui-ci</a>.</p>
+
+<p>Il reste alors à Eve à trouver dans la table précalculée la clé $k$ qui correspond au chiffré $c'$.</p>
+
+<p>Cette attaque permet d'écouter un grand nombre de communication à faible coût, et/ou de trouver rapidement la clé
+d'une communication, par exemple afin de pouvoir utiliser la clé pour envoyer des messages chiffrés
+alors que la communication est toujours en cours (et la clé est donc encore valide pour envoyer des messages).</p>
+
+<h4>TMTO</h4>
+
+<p>Un exemple du chiffrement présenté ci-dessus est le DES, qui utilise des clés de 56 bits.
+Il n'est donc pas envisageable de stocker une table contenant $N = 2^{56}$ valeurs, et il est très long
+(mais possible) de calculer $Enc(k, m)$ pour un $m$ donné et toutes les valeurs de $k$.</p>
+
+<p>C'est typiquement le genre de situation où un TMTO sera efficace. Pour pouvoir être effecuté, le
+TMTO aura besoin du même scénario d'attaque que pour la deuxième technique: une attaque à texte clair choisi.</p>
+
+<h3>Mots de passe</h3>
+
+<p>Les mots de passe sont souvent stockés sous la forme de la sortie d'une fonction à sens unique appliqué à ce
+mot de passe (souvent une fonction de hachage, par exemple SHA1):
+au lieu de stocker le mot de passe $m_p$, on stocke $m_h = h(m_p)$. Pour vérifier qu'un mot de passe donné $m_p'$ est
+correct, on teste si $h(m_p') = m_h$.</p>
+
+<p>Au cas où le fichier utilisé pour l'authentification est révélé publiquement, les mots de passe restent donc en principe
+protégés.</p>
+
+<p>Dans ce cas, $A$ est l'ensemble des mots de passe possibles. Si les mots de passe sont alphanumériques et de longueur 8,
+il y a $N \approx 2^{48}$ mots de passe possibles. C'est de nouveau trop gros pour stocker la table complète des inversions,
+mais un TMTO pourra fonctionner.</p>
 
 <p>D'autres exemples de TMTO (pas seulement dans le domaine de la cryptanalyse) sont présentés dans
 <a href="http://www.cs.sjsu.edu/faculty/stamp/RUA/TMTO.pdf">cet article</a>.</p>
