@@ -146,20 +146,6 @@ la probabilité de succès du TMTO. Enfin, celle-ci peuvent donner lieu à ce qu
 	ce cours</a>.</figcaption>
 </figure>
 
-<p>Pour empêcher les fusions entre chaînes, une approche serait de changer la façon de calculer
-chaque chaîne et d'utiliser
-\[ X_{i,j} = F_i((r\circ h)(X_{i,j-1})) \]
-où $F_i:A\to A$ est une fonction de permutation de bits différente pour chaque chaîne. De la sorte,
-les chaînes peuvent encore rentrer en collision mais ne peuvent plus fusionner. Ceci est illustré sur
-la figure ci-dessous.</p>
-
-<figure class="figure center-block">
-  	<img src="img/hellman-intersect.png" class="figure-img img-fluid rounded center-block" alt="">
-  	<figcaption class="figure-caption center-block">En utilisant des fonctions de permutations de bits
-	différentes pour chaque chaîne, les chaînes ne peuvent plus fusionner mais peuvent encore se croiser.
-	Figure tirée de <a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">
-	ce cours</a>.</figcaption>
-</figure>
 
 <p>Pour augmenter la proportion de l'ensemble $A$ couvert par les chaînes (et donc la probabilité
 de succès du TMTO), on peut construire $l$ tables utilisant chacune chacune des fonctions
@@ -200,6 +186,30 @@ assez facile de vérifier si la valeur trouvée est une false alarm ou non. Pour
 est effectivement le $x$ recherché, on calcule $h(X_{j,t-1})$ et on vérifie si cela est bien égal à $y$.
 Si ce n'est pas le cas, il s'agit d'une false alarm et l'algorithme se poursuit comme expliqué
 précédemment.</p>
+
+<h2>Performance</h2>
+
+<p>Hellman suggère d'utiliser $m = t = N^{1/3}$. En effet, quand le nombre de chaines dans une table devient
+trop élevé, il y a beaucoup de fusion et l'efficacité de la recherche diminue. Avec ces paramètres, la probabilité
+de succès est de $P_{table} \approx 0.8 mt/N = 0.8 N^{-1/3}$. Cette probabilité est très faible quand $N$ est grand.</p>
+
+<p>Afin d'augmenter la probabilité de succès, Hellman propose d'utiliser $kt$ tables, avec $k$ un petit entier par exemple.
+Pour empêcher les fusions entre chaînes de différentes table, il faut utiliser une fonction de réduction différente pour
+chaque table. De la sorte, les chaînes peuvent encore rentrer en collision mais ne peuvent plus fusionner. Ceci est illustré sur
+la figure ci-dessous.</p>
+
+<figure class="figure center-block">
+  	<img src="img/hellman-intersect.png" class="figure-img img-fluid rounded center-block" alt="">
+  	<figcaption class="figure-caption center-block">En utilisant des fonctions de réduction
+	différentes pour chaque chaîne, les chaînes ne peuvent plus fusionner mais peuvent encore se croiser.
+	Figure tirée de <a href="http://www.cs.sjsu.edu/~stamp/crypto/PowerPoint_PDF/10_TMTO.pdf">
+	ce cours</a>.</figcaption>
+</figure>
+
+<p>L'utilisation en ressources est donc $P \propto kmt^2$, $M \propto ktm$, $T \propto kt^2$.</p>
+
+<p>D'un point de vue de la complexité, si on travaille à $mt^2 \propto N$, on a $mt \propto M$ et $t^2 \propto T$.
+On a donc $T \propto N^2/M^2$.</p>
 
 		     </div>
                 </div>

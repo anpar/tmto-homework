@@ -183,7 +183,7 @@ peut-être
 d'une communication, par exemple afin de pouvoir utiliser la clé pour envoyer des messages chiffrés
 alors que la communication est toujours en cours (et la clé est donc encore valide pour envoyer des messages).</p>
 
-<h4>TMTO</h4>
+<h4>Attaque TMTO</h4>
 
 <p>Un exemple du chiffrement présenté ci-dessus est le DES, qui utilise des clés de 56 bits.
 Il n'est donc pas envisageable de stocker une table contenant $N = 2^{56}$ valeurs, et il est très long
@@ -202,7 +202,8 @@ correct, on teste si $h(m_p') = m_h$.</p>
 <p>Au cas où le fichier utilisé pour l'authentification est révélé publiquement, les mots de passe restent donc en principe
 protégés.</p>
 
-<p>Dans ce cas, $A$ est l'ensemble des mots de passe possibles. Si les mots de passe sont alphanumériques et de longueur 8,
+<p>Dans ce cas, $A$ est l'ensemble des mots de passe possibles. Si les mots de passe sont alphanumériques (et tiennent
+compte de la casse) et de longueur 8,
 il y a $N \approx 2^{48}$ mots de passe possibles. C'est de nouveau trop gros pour stocker la table complète des inversions,
 mais un TMTO pourra fonctionner.</p>
 
