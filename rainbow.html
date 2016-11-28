@@ -127,20 +127,26 @@ les rainbow tables ont des avantages sur les tables de Hellman:
 
 <h2>Probabilité de succès</h2>
 
-La probabilité de succès d'une table est la probabilité qu'une valeur donnée se trouve dans la table.
+<p>La probabilité de succès d'une table est la probabilité qu'une valeur donnée se trouve dans la table.
 En considérant que les colonnes de la table sont idépendantes (ce qui est le cas si $h$ est une bonne fonction
 de hachage), et qu'il y a $m_i$ éléments distincts dans la colonne $i$, la probabilité d'échec sur la table
 est le produit des probabilités d'échec sur chacune des colonnes ($1 - m_i/N$). La probabilité de succès est
-donc $$P_{table} = 1 - \prod_{i=1}^t \left(1-\frac{m_i}{N}\right)$$
+donc $$P_{table} = 1 - \prod_{i=1}^t \left(1-\frac{m_i}{N}\right).$$</p>
 
-Il reste à calculer le nombre d'éléments distincts dans chaque colonne. Par construction de la table, $m_1 = m$.
+<p>Il reste à calculer le nombre d'éléments distincts dans chaque colonne. Par construction de la table, $m_1 = m$.
 En connaissant $m_i$, on peut calculer $m_{i+1}$: soit une valeur $x_{i+1}^*\in A$, si $\{x_{i,j}\}_{1\le j\le m_i}$
 est l'ensemble des valeurs de la colonne $i$ et en modélisant $f_i$ comme une fonction aléatoire, la probabilité
 que $f_i(x_{i,j} \neq x_{i+1}^*$ est de $1 - 1/N$ pour un $j$ fixé. La probabilité que $f_i(x_{i,j} \neq x_{i+1}^*$
 pour tous les $j$ est de $(1-1/N)^{m_i}$. Par conséquent, la probabilité que $x_{i+1}^*$ soit dans la colonne $i+1$
 est de $1 - (1-1/N)^{m_i}$. Le nombre de valeurs distinctes dans la colonne $i+1$ est donc
 $$N\left(1 - \left(1-\frac{1}{N}\right)^{m_i}\right) = N\left(1 - e^{\ln(1-1/N)m_i}\right) \approx N \left(1 - e^{-\frac{m_i}{N}}\right)$$
-en utilisant le développement de Taylor $\ln(1+\epsilon) \approx 1 + \epsilon$.
+en utilisant le développement de Taylor $\ln(1+\epsilon) \approx 1 + \epsilon$.</p>
+
+<p>Remarque: si élimine les chaines qui fusionnent en construisant la table, il n'y a jamais deux éléments
+identiques dans la même colonne (cela correspond précisément à la fusion de deux chaines). La probabilité de succès
+pour une table de $m$ chaines est donc $$P_{table} = 1 - \left(1 - \frac{m}{N}\right)^t.$$</p>
+
+
 
 <h2>Taille maximale des rainbow tables</h2>
 <p>On cherche a utiliser les tables les plus grandes possibles pour minimiser le nombre de tables dans lesquelles
@@ -164,6 +170,9 @@ il faudrait tester de l'ordre de $N$ points de départ, ce qui correspond à un 
 devient un travail considérable, pour un gain assez faible pour le travail en-ligne.</p>
 
 <p>TODO: détailler le travail pour une taille de table donnée, voir annexe A du doc précédent.</p>
+
+<p>Dans le cas d'une table parfaite (pas de fusions et $m = m_{max}$), la probabilité de succès est
+$$P_{table} = 1 - \left(1-\frac{m_{max}}{N}\right)^t,$$ comme expliqué à la section précédente.</p>
 
 		     		</div>
                 </div>
