@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TMTO tutorial</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+	<script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+  		tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+	});
+	</script>
+	<script type="text/javascript" async src="js/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                     	TMTO
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">Introduction</a>
+                </li>
+                <li>
+                    <a href="hellman.html">TMTO d'Hellman</a>
+                </li>
+                <li>
+                    <a href="rainbow.html">Rainbow tables</a>
+                </li>
+                <li>
+                    <a href="interleaved.html">Interleaved TMTO</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+
+		<a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a>
+                <div class="row">
+                    <div class="col-lg-12">
+
+<h1>Protection contre les TMTO</h1>
+
+<p>Dans cette section, nous reprenons brièvement les exmples de l'introduction et montrons comment on peut
+mettre en place des protections qui rendent les TMTO expliqués ici inopérants.</p>
+
+<h2>Chiffrement</h2>
+
+<p>Dans le cas de l'attaque d'un chiffrement par block par un TMTO, le paramètre essentiel est la taille de
+l'espace des clés, $N$. En effet, les TMTO sont toujours plus longs que des attaques par force-brute contre
+une seule instance du problème.</p>
+
+<p>Il suffit de prendre un $N$ suffisamment grand pour qu'une attaque par force-brute
+ne soit pas possible. On considère aujourd'hui qu'une taille de clé de 128 bits (donc $N=2^{128}$) est suffisant
+pour un chiffrement symétrique (par exemple AES).</p>
+
+<h2>Mots de passe</h2>
+
+<p>Les plus grands succès actuels des TMTO sont dans le domaine des mots de passe. En effet, dans ce domaine, $N$
+est suffisament grand pour qu'une recherche exhaustive soit possible, mais très longue, ce qui est précisément
+la situation où les TMTO s'appliquent.</p>
+
+<h3>Salage</h3>
+
+<p>Lorsqu'on enregistre des mots de passe, au lieu de stocker $h(m_p)$, on peut utiliser une nouvelle fonction
+$h': A \cross S \rightarrow B$, avec $S$ un espace assez grand (par exemple $|S| = 2^{128}$).
+Au moment de stocker un mot de passe, on choisit aléatoirement un sel $s\in S$, et on stocke $(h'(m_p, s), s)$.
+Connaissant $s$ et $h'(m_p, s)$, on peut facilement tester si un mot de passe donné est correct.</p>
+
+<p>Pour attaquer cette protection avec un TMTO, on peut envisager deux options: travailler avec l'espace
+$A \cross S$, mais alors $N = |A \cross S| \le |S|$, et $S$ est suffisament grand pour empêcher une recherche
+par force brute; un TMTO sera donc inapplicable. Une autre option est d'attaquer la fonction $h_s'$. Cependant,
+comme $s$ est choisi aléatoirement, il sera vraisemblablement (quasi-)unique dans la base de données. On ne peut
+donc pas utiliser un TMTO pour rendre l'attaque contre toute une base de données plus efficace.</p>
+
+<p>Concernant l'autre intérêt des TMTO, c'est-à-dire avoir un délai court entre le moment où l'attaquant
+connait $h'(m_p, s)$ et le moment où l'attaque se finit, on peut tout d'abord remarquer que si $s$ et
+$h'(m_p, s$ sont stockés dans la même base de donnée, il est peu probable qu'un attaquant connaisse
+$s$ sans connaitre $h'(m_p, s)$, et $s$ est évidemment nécessaire pour pouvoir précalculer la table
+pour inverser $h_s'$.</p>
+
+<h3>Protection contre tout type d'attaque par force brute</h3>
+
+<p>Beaucoup de techniques pour éviter les attaques par force brute sont aussi applicables contre le TMTO.
+Par exemple, rendre la fonction $h'$ lente à calculer va rentre plus difficile aussi bien le précalcul
+que la recherche en-ligne. Ces techniques sont couramment implémentées dans les fonctions de dérivation
+de clé.</p>
+//TODO ajouter référence https://www.ietf.org/rfc/rfc2898.txt
+
+<p>Une autre technique simple est d'augmenter la taille de l'espace des mots de passe ($N$) en utilisant des
+mots de passe plus longs et/ou contenant des caractères plus variés.</p>
+
+		     		</div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+</body>
+
+</html>
